@@ -23,7 +23,7 @@ class AppUserViewSet(viewsets.ModelViewSet):
     """
     queryset = AppUser.objects.all()
     serializer_class = AppUserSerializer
-    action_list = ['forget', 'login', 'register', 'create']
+    action_list = ['forget', 'login', 'verify', 'create']
 
     def get_permissions(self):
         """

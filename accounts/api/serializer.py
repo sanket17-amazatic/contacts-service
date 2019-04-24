@@ -28,7 +28,7 @@ class AppUserSerializer(serializers.ModelSerializer):
         """
         Overriding create method to save user mobile and password
         """
-        user = AppUser.objects.filter(phone=validated_data)
+        user = AppUser.objects.filter(phone=validated_data.get('phone'))
         if user.count() > 0:
             raise serializers.ValidationError('Entered mobile number is already registered')
         user_obj = AppUser.objects.create(username=validated_data.get('username'),
