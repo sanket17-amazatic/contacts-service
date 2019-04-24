@@ -1,22 +1,22 @@
-'''
+"""
 Serializer for Conntact app user accounts
-'''
+"""
 from rest_framework import serializers
 from accounts.models import (AppUser, BlackListedToken)
 
 class AppUserSerializer(serializers.ModelSerializer):
-    '''
+    """
     Serialzer class for Application user
-    '''
+    """
     password2 = serializers.CharField(write_only=True)
     class Meta:
         model = AppUser
         fields = ('id', 'username', 'password', 'password2','email', 'phone', 'deleted_at')
 
     def validate(self, data):
-        '''
+        """
         Validation method for checking password validation
-        '''
+        """
         original_password = data.get('password')
         confirm_password = data.pop('password2')
         
@@ -25,9 +25,9 @@ class AppUserSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
-        '''
+        """
         Overriding create method to save user mobile and password
-        '''
+        """
         user = AppUser.objects.filter(phone=validated_data)
         if user.count() > 0:
             raise serializers.ValidationError('Entered mobile number is already registered')
@@ -38,9 +38,9 @@ class AppUserSerializer(serializers.ModelSerializer):
         return user_obj
 
     def update(self, instance, validated_data):
-        '''
+        """
         Overriding update method to update user record
-        '''
+        """
         if instance.phone != validated_data.get('phone'):
             user = AppUser.objects.filter(phone=validated_data.get('phone'))
             if user.count() > 0:
@@ -54,6 +54,8 @@ class AppUserSerializer(serializers.ModelSerializer):
         return instance
 
 class BlackListedTokenSerializer(serializers.ModelSerializer):
+    """
+    """
     class Meta:
         model = BlackListedToken
         fields = ('token', 'user')

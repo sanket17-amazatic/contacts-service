@@ -1,17 +1,17 @@
-'''
+"""
 User defined permission for account application
-'''
+"""
 from rest_framework import permissions
 from accounts.models import BlackListedToken
 
 class IsTokenValid(permissions.BasePermission):
-    '''
+    """
     Class to check token validity
-    '''
+    """
     def has_permission(self, request, view):
-        '''
+        """
         Method to check input token exist in black listed token list.
-        '''
+        """
         user_id = request.user.id            
         is_allowed_user = True
         token = request.auth.decode("utf-8")

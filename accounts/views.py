@@ -1,6 +1,6 @@
-'''
+"""
 View for contact user application user
-'''
+"""
 from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework import viewsets
@@ -18,9 +18,9 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 class AppUserViewSet(viewsets.ModelViewSet):
-    '''
+    """
     Viewset for AppUser
-    '''
+    """
     queryset = AppUser.objects.all()
     serializer_class = AppUserSerializer
     action_list = ['forget', 'login', 'register', 'create']
@@ -37,9 +37,9 @@ class AppUserViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['POST'])
     def forget(self, request, **kwargs):
-        '''
+        """
         Action function executed for reseting forgotten password
-        '''
+        """
         user_obj = self.get_object()
         entered_phone = kwargs['phone']
         if entered_phone != user_obj.phone:
@@ -63,9 +63,9 @@ class AppUserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['POST'])
     def verify(self, request, **kwargs):
-        '''
+        """
         Method to check phone number is registered or not
-        '''
+        """
         req_phone = request.data.get('phone', None)
         if req_phone is None:
             return Response({'details':'Phone number cannot be empty'}, status=status.HTTP_400_BAD_REQUEST)
@@ -77,9 +77,9 @@ class AppUserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['POST'])
     def login(self, request, **kwargs):
-        '''
+        """
         Action method for app user login
-        '''
+        """
         if request.user.is_authenticated:
             return Response({'details':'You are already authenticated'})
 
@@ -94,8 +94,8 @@ class AppUserViewSet(viewsets.ModelViewSet):
         return Response({'details':'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutViewSet(viewsets.ModelViewSet):
-    '''
+    """
     Viewset for maintaining blacklisted token
-    '''
+    """
     queryset = BlackListedToken.objects.all()
     serializer_class = BlackListedTokenSerializer
