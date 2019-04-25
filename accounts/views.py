@@ -85,6 +85,8 @@ class AppUserViewSet(viewsets.ModelViewSet):
 
         req_username = request.data.get('username')
         req_password = request.data.get('password')
+        if req_username is None or req_password is None:
+            return Response({'details':'Username or password is empty'}, status=status.HTTP_400_BAD_REQUEST)
         user = authenticate(username=req_username, password=req_password)
         if user is not None:
             payload = jwt_payload_handler(user)

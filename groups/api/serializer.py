@@ -4,14 +4,6 @@ Serializer for Group and Group Member
 from rest_framework import serializers
 from groups.models import (Group, Member, MemberContactNumber)
 
-class GroupSerializer(serializers.ModelSerializer):
-    """
-    Serialzer class for App user Group
-    """
-    class Meta:
-        model = Group
-        fields = ('id', 'app_user', 'name', 'description', 'member')
-
 class MemberContactNumberSerializer(serializers.ModelSerializer):
     """
     Serializer class for Member's Contact number
@@ -68,3 +60,12 @@ class MemberSerializer(serializers.ModelSerializer):
         MemberContactNumber.objects.filter(id__in=stored_contact_id_list).delete()
         instance.save()
         return instance
+
+class GroupSerializer(serializers.ModelSerializer):
+    """
+    Serialzer class for App user Group
+    """
+    member = MemberSerializer(many=True, read_only=False)
+    class Meta:
+        model = Group
+        fields = ('id', 'app_user', 'name', 'description', 'member')
