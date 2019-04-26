@@ -43,7 +43,7 @@ class Group(SoftDeletionModel, models.Model):
     app_user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='user_groups')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
-    member = models.ManyToManyField(Member, blank=True)
+    member = models.ManyToManyField(Member, blank=True, related_name='group_members')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

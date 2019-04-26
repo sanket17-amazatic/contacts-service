@@ -13,6 +13,8 @@ class AppUserTest(APITestCase):
     """
     Test case class for APP USER
     """
+    auth_token = ''
+
     def setUp(self):
         """
         Setup method for creating a user for all test
@@ -28,13 +30,46 @@ class AppUserTest(APITestCase):
             "password": 'testing123'
         }
         response_data = self.client.post(url, req_data, format='json')
+        self.auth_token = response_data.data['token']
         self.client = APIClient()
         if set_flag is True:    
             self.client.credentials(HTTP_AUTHORIZATION='JWT ' + response_data.data['token'])
         else:
             self.client.credentials()
         return self.client
+
     
+    
+    def test_user_registration_wrong_password(self):
+        """
+        Test for user creation
+        """
+        url = api_reverse('api:user-list')
+        req_data = {
+            "username": "sam",
+            "password": "sam@123",
+            "password2": "sam@123345",
+            "email": "john@gmail.com",
+            "phone": "+918976543220"
+        }
+        response_data = self.client.post(url, req_data, format='json')
+        self.assertEqual(response_data.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_user_registration_for_existing_user(self):
+        """
+        Test for user registration which is already created
+        """
+        url = api_reverse('api:user-list')
+        req_data = {
+            "username": "john",
+            "password": "admin@123",
+            "password2": "admin@123345",
+            "email": "john@gmail.com",
+            "phone": "+918976543210"
+        }
+        response_data = self.client.post(url, req_data, format='json')
+        self.assertEqual(response_data.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_user_registration_success(self):
         """
         Test for user creation
@@ -94,7 +129,6 @@ class AppUserTest(APITestCase):
         response_data = self.client.post(url, req_data, format='json')
         self.assertEqual(response_data.status_code, status.HTTP_400_BAD_REQUEST)
 
-
     def test_user_login_success(self):
         """
         Test to check user login success
@@ -142,3 +176,16 @@ class AppUserTest(APITestCase):
         print(response_data.data)
         self.assertEqual(response_data.status_code, status.HTTP_401_UNAUTHORIZED)
     
+    def test_user_logout(self):
+        """
+        Test for user logout
+        """
+        url = api_reverse('api:logout')
+        self.client = self.set_token()
+        req_data = {
+            'user' : 1,
+            'token' : self.auth_token
+        }
+        response_data = self.client.post(url, req_data, format='json')
+        print(response_data.data)
+        self.assertEqual(response_data.status_code, status.HTTP_200_OK)
