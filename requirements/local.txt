@@ -1,0 +1,14 @@
+autopep8==1.4.4
+Babel==2.6.0
+Django==2.2
+django-phonenumber-field==2.3.1
+djangorestframework==3.9.3
+djangorestframework-jwt==1.11.0
+ez-setup==0.9
+phonenumbers==8.10.10
+psycopg2==2.8.2
+pycodestyle==2.5.0
+PyGreSQL==5.0.6
+PyJWT==1.7.1
+pytz==2019.1
+sqlparse==0.3.0

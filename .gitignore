@@ -1,2 +1,6 @@
 .vscode/
-__pycache
+__pycache__
+env
+src/core/settings/local.py
+.py~
+.pyc
