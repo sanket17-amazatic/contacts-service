@@ -1,3 +1,7 @@
+"""
+URL file which redirect routing of 1.0.0
+It is redirected to router file in v1.0.0 directory
+"""
 from django.urls import (path, include)
 
 urlpatterns = [

@@ -70,6 +70,20 @@ class AppUserTest(APITestCase):
         response_data = self.client.post(url, req_data, format='json')
         self.assertEqual(response_data.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_user_logout(self):
+        """
+        Test for user logout
+        """
+        url = api_reverse('api:logout-list')
+        self.client = self.set_token()
+        req_data = {
+            'user' : 1,
+            'token' : self.auth_token
+        }
+        response_data = self.client.post(url, req_data, format='json')
+        print('Logout data:',response_data.data)
+        self.assertEqual(response_data.status_code, status.HTTP_200_OK)
+
     def test_user_registration_success(self):
         """
         Test for user creation
@@ -176,16 +190,4 @@ class AppUserTest(APITestCase):
         print(response_data.data)
         self.assertEqual(response_data.status_code, status.HTTP_401_UNAUTHORIZED)
     
-    def test_user_logout(self):
-        """
-        Test for user logout
-        """
-        url = api_reverse('api:logout')
-        self.client = self.set_token()
-        req_data = {
-            'user' : 1,
-            'token' : self.auth_token
-        }
-        response_data = self.client.post(url, req_data, format='json')
-        print(response_data.data)
-        self.assertEqual(response_data.status_code, status.HTTP_200_OK)
+    

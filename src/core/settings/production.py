@@ -1,3 +1,7 @@
+"""
+This file contains production level settings
+"""
+
 import os
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'mq=1@_3wwgry$rs8oi&45pxr0_da=4i311d52j(l-a0%_p9(jt'

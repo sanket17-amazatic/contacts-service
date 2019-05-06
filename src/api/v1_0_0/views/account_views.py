@@ -10,8 +10,8 @@ from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework_jwt.settings import api_settings
 from account.models import (AppUser, BlackListedToken)
-from ..serializers.account_serializers import (AppUserSerializer, BlackListedTokenSerializer)
 from utils.jwt_utils import jwt_response_payload_handler
+from ..serializers.account_serializers import (AppUserSerializer, BlackListedTokenSerializer)
 from ..permissions.token_permissions import IsTokenValid
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
