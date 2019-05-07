@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 from phonenumber_field.modelfields import PhoneNumberField
 from core.models import SoftDeletionModel 
 
-class AppUser(SoftDeletionModel, AbstractUser):
+class User(SoftDeletionModel, AbstractUser):
     """
     Custom user profile class
     """
@@ -26,7 +26,7 @@ class BlackListedToken(models.Model):
     Model for black listing token
     """
     token = models.CharField(max_length=500)
-    user = models.ForeignKey(AppUser, related_name="token_user", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="token_user", on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True)
 
     class Meta:

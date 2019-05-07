@@ -2,9 +2,9 @@
 Registering AppUser, BlackListedToken model
 """
 from django.contrib import admin
-from account.models import (AppUser, BlackListedToken)
+from user.models import (User, BlackListedToken)
 
-class AppUserAdmin(admin.ModelAdmin):
+class UserAdmin(admin.ModelAdmin):
     """
     Custom class to override default admin method
     """
@@ -12,8 +12,8 @@ class AppUserAdmin(admin.ModelAdmin):
         """
         custom queryset method to override default admin method
         """
-        qs = AppUser.all_objects.all()
+        qs = User.all_objects.all()
         return qs
 
-admin.site.register(AppUser, AppUserAdmin)
+admin.site.register(User, UserAdmin)
 admin.site.register(BlackListedToken)

@@ -7,11 +7,11 @@ from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse as api_reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from account.models import (AppUser, BlackListedToken)
+from user.models import (User, BlackListedToken)
 
-class AppUserTest(APITestCase):
+class UserTest(APITestCase):
     """
-    Test case class for APP USER
+    Test case class for USER
     """
     auth_token = ''
 
@@ -19,7 +19,7 @@ class AppUserTest(APITestCase):
         """
         Setup method for creating a user for all test
         """
-        app_user = AppUser.objects.create(username='testuser', email="test@mail.com", phone="+919876543210")
+        app_user = User.objects.create(username='testuser', email="test@mail.com", phone="+919876543210")
         app_user.set_password('testing123')
         app_user.save()
 
@@ -38,8 +38,6 @@ class AppUserTest(APITestCase):
             self.client.credentials()
         return self.client
 
-    
-    
     def test_user_registration_wrong_password(self):
         """
         Test for user creation
@@ -189,5 +187,4 @@ class AppUserTest(APITestCase):
         response_data = self.client.post(url, req_data, format='json')
         print(response_data.data)
         self.assertEqual(response_data.status_code, status.HTTP_401_UNAUTHORIZED)
-    
     

@@ -1,8 +1,8 @@
-from .account_views import (AppUserViewSet, LogoutViewSet)
+from .user_views import (UserViewSet, LogoutViewSet)
 from .group_views import (GroupViewSet, ContactViewSet)
 
 __all__ = [
-    'AppUserViewSet',
+    'UserViewSet',
     'LogoutViewSet',
     'GroupViewSet',
     'ContactViewSet',

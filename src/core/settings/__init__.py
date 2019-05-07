@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'phonenumber_field',
-    'account',
+    'user',
     'group',
 ]
 
@@ -117,7 +117,7 @@ JWT_AUTH = {
     'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
 
     'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'accounts.api.utils.jwt_response_payload_handler',
+    'utils.jwt_util.jwt_response_payload_handler',
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
 
     'JWT_ALLOW_REFRESH': True,
@@ -151,4 +151,4 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-AUTH_USER_MODEL = 'account.AppUser'
+AUTH_USER_MODEL = 'user.User'

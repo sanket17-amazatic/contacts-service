@@ -2,15 +2,15 @@
 Serializer for Conntact app user accounts
 """
 from rest_framework import serializers
-from account.models import (AppUser, BlackListedToken)
+from user.models import (User, BlackListedToken)
 
-class AppUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     """
     Serialzer class for Application user
     """
     password2 = serializers.CharField(write_only=True)
     class Meta:
-        model = AppUser
+        model = User
         fields = ('id', 'username', 'password', 'password2','email', 'phone', 'deleted_at')
 
     def validate(self, data):
@@ -28,10 +28,10 @@ class AppUserSerializer(serializers.ModelSerializer):
         """
         Overriding create method to save user mobile and password
         """
-        user = AppUser.objects.filter(phone=validated_data.get('phone'))
+        user = User.objects.filter(phone=validated_data.get('phone'))
         if user.count() > 0:
             raise serializers.ValidationError('Entered mobile number is already registered')
-        user_obj = AppUser.objects.create(username=validated_data.get('username'),
+        user_obj = User.objects.create(username=validated_data.get('username'),
                                         email=validated_data.get('email'), phone=validated_data.get('email'))  
         user_obj.set_password(validated_data.get('password'))
         user_obj.save()
@@ -42,7 +42,7 @@ class AppUserSerializer(serializers.ModelSerializer):
         Overriding update method to update user record
         """
         if instance.phone != validated_data.get('phone'):
-            user = AppUser.objects.filter(phone=validated_data.get('phone'))
+            user = User.objects.filter(phone=validated_data.get('phone'))
             if user.count() > 0:
                 raise serializers.ValidationError('Entered mobile number is already registered')
 
@@ -55,6 +55,7 @@ class AppUserSerializer(serializers.ModelSerializer):
 
 class BlackListedTokenSerializer(serializers.ModelSerializer):
     """
+    Serializer class for blacklisted token
     """
     class Meta:
         model = BlackListedToken

@@ -2,7 +2,7 @@
 User defined permission for account application
 """
 from rest_framework import permissions
-from account.models import BlackListedToken
+from user.models import BlackListedToken
 
 class IsTokenValid(permissions.BasePermission):
     """

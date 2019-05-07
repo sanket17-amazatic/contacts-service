@@ -2,7 +2,7 @@
 Registering group, member and member contact number
 """
 from django.contrib import admin
-from .models import (Group, Contact, ContactNumber)
+from .models import (Group, Contact, ContactNumber, ContactEmail)
 
 class GroupAdmin(admin.ModelAdmin):
     """
@@ -29,3 +29,4 @@ class ContactAdmin(admin.ModelAdmin):
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(ContactNumber)
+admin.site.register(ContactEmail)

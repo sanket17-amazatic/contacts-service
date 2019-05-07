@@ -9,20 +9,20 @@ from rest_framework import status
 from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework_jwt.settings import api_settings
-from account.models import (AppUser, BlackListedToken)
+from user.models import (User, BlackListedToken)
 from utils.jwt_utils import jwt_response_payload_handler
-from ..serializers.account_serializers import (AppUserSerializer, BlackListedTokenSerializer)
+from ..serializers.user_serializers import (UserSerializer, BlackListedTokenSerializer)
 from ..permissions.token_permissions import IsTokenValid
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
-class AppUserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     """
-    Viewset for AppUser
+    Viewset for User
     """
-    queryset = AppUser.objects.all()
-    serializer_class = AppUserSerializer
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     action_list = ['forget', 'login', 'verify', 'create']
 
     def get_permissions(self):
@@ -50,7 +50,7 @@ class AppUserViewSet(viewsets.ModelViewSet):
             return Response({'details':'Entered password didnot match'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         user_obj.set_password(entered_password)
         user_obj.save()
-        serializer_data = AppUserSerializer(user_obj)
+        serializer_data = UserSerializer(user_obj)
         return Response(serializer_data.data)
     
     @action(detail=False, methods=['POST'])
@@ -69,7 +69,7 @@ class AppUserViewSet(viewsets.ModelViewSet):
         req_phone = request.data.get('phone', None)
         if req_phone is None:
             return Response({'details':'Phone number cannot be empty'}, status=status.HTTP_400_BAD_REQUEST)
-        user = AppUser.objects.filter(phone=req_phone)
+        user = User.objects.filter(phone=req_phone)
         if user.count() > 0:
             return Response({'register':'True'}, status=status.HTTP_200_OK)
         else:
