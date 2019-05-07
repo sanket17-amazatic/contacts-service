@@ -1,10 +1,10 @@
 from .account_serializers import (AppUserSerializer, BlackListedTokenSerializer)
-from .group_serializers import (MemberContactNumberSerializer, MemberSerializer, GroupSerializer)
+from .group_serializers import (ContactNumberSerializer, ContactSerializer, GroupSerializer)
 
 __all__ = [
     'AppUserSerializer',
     'BlackListedTokenSerializer',
-    'MemberContactNumberSerializer',
-    'MemberSerializer',
+    'ContactNumberSerializer',
+    'ContactSerializer',
     'GroupSerializer',
 ]

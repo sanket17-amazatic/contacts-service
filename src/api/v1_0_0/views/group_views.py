@@ -3,8 +3,8 @@ View for Group and group member detials
 """
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from group.models import (Group, Member)
-from ..serializers.group_serializers import (GroupSerializer, MemberSerializer)
+from group.models import (Group, Contact)
+from ..serializers.group_serializers import (GroupSerializer, ContactSerializer)
 from ..permissions.token_permissions import IsTokenValid
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -16,10 +16,10 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classess = [IsTokenValid]
     authentication_classess = []
 
-class MemberViewSet(viewsets.ModelViewSet):
+class ContactViewSet(viewsets.ModelViewSet):
     """
-    Viewset for maintaining group member
+    Viewset for maintaining group contact
     """
-    queryset = Member.objects.all()
+    queryset = Contact.objects.all()
     permission_classess = [IsTokenValid]
-    serializer_class = MemberSerializer
+    serializer_class = ContactSerializer

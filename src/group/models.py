@@ -6,9 +6,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 from core.models import SoftDeletionModel
 from account.models import AppUser
 
-class Member(SoftDeletionModel, models.Model):
+class Contact(SoftDeletionModel, models.Model):
     """
-    Group member details
+    Group Contact details
     """
     name = models.CharField(max_length=100)
     address = models.TextField(blank=True, null=True)
@@ -23,11 +23,11 @@ class Member(SoftDeletionModel, models.Model):
         """
         return self.name 
 
-class MemberContactNumber(SoftDeletionModel, models.Model):
+class ContactNumber(SoftDeletionModel, models.Model):
     """
     Member Contact number
     """
-    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='contact')
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='contact')
     phone = PhoneNumberField(db_index=True)
 
     def __str__(self):
@@ -43,7 +43,7 @@ class Group(SoftDeletionModel, models.Model):
     app_user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='user_groups')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
-    member = models.ManyToManyField(Member, blank=True, related_name='group_members')
+    contacts = models.ManyToManyField(Contact, blank=True, related_name='group_contacts')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

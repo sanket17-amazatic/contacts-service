@@ -2,7 +2,7 @@
 Registering group, member and member contact number
 """
 from django.contrib import admin
-from .models import (Group, Member, MemberContactNumber)
+from .models import (Group, Contact, ContactNumber)
 
 class GroupAdmin(admin.ModelAdmin):
     """
@@ -15,17 +15,17 @@ class GroupAdmin(admin.ModelAdmin):
         query_set = Group.all_objects.all()
         return query_set
 
-class MemberAdmin(admin.ModelAdmin):
+class ContactAdmin(admin.ModelAdmin):
     """
-    Custom class to override default member admin method
+    Custom class to override default contact admin method
     """
     def get_queryset(self, request):
         """
         custom queryset method to override default admin method
         """
-        query_set = Member.all_objects.all()
+        query_set = Contact.all_objects.all()
         return query_set
 
 admin.site.register(Group, GroupAdmin)
-admin.site.register(Member, MemberAdmin)
-admin.site.register(MemberContactNumber)
+admin.site.register(Contact, ContactAdmin)
+admin.site.register(ContactNumber)
