@@ -1,5 +1,5 @@
 from .user_serializers import (UserSerializer, BlackListedTokenSerializer)
-from .group_serializers import (ContactNumberSerializer, ContactEmailSerializer, ContactSerializer, GroupSerializer)
+from .group_serializers import (ContactNumberSerializer, ContactEmailSerializer, ContactSerializer, MemberSerializer, GroupSerializer)
 
 __all__ = [
     'UserSerializer',
@@ -7,5 +7,6 @@ __all__ = [
     'ContactNumberSerializer',
     'ContactEmailSerialzer',
     'ContactSerializer',
+    'MemberSerializer',
     'GroupSerializer',
 ]

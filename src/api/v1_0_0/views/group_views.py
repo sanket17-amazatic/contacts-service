@@ -1,15 +1,16 @@
 """
 View for Group and group member detials
 """
-from django.db.models import (Q, Prefetch)
+from django.db.models import (Q,)
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from group.models import (Group, Contact)
+from rest_framework.response import Response
+from rest_framework import status
+from group.models import (Group, Contact, Member)
 from ..serializers.group_serializers import (
-    GroupSerializer, ContactSerializer)
+    GroupSerializer, ContactSerializer, MemberSerializer)
 from ..permissions.token_permissions import IsTokenValid
 from ..permissions.group_permissions import IsValidGroupUser
-
 
 class GroupViewSet(viewsets.ModelViewSet):
     """
@@ -18,14 +19,30 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classess = (IsTokenValid, IsValidGroupUser)
 
+    def get_serializer_context(self, *args, **kwargs):
+        """
+        """
+        return {'request': self.request}
+
     def get_queryset(self):
         """
         Overriding queryset method 
         Fetches record according to owner and membership of a user
         """
-        group_info = Group.objects.filter(
-            Q(owner=self.request.user) | Q(group_members_in=[self.request.user, ]))
+        group_id_list = list(Member.objects.filter(
+            user=self.request.user).values_list('group', flat=True))
+        group_info = Group.objects.filter(id__in=group_id_list)
         return group_info
+    
+    @action(detail=True, methods=['GET'], id=None)
+    def member(self, request, **kwargs):
+        if id is None:
+            return Response({'message':'id not found'}, status=status.HTTP_400_BAD_REQUEST) 
+        member_data = Member.objects.filter(group_id=id)
+        if member_data is not None:
+            return Response(member_data)
+        else:
+            return Response({'message':'No details found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ContactViewSet(viewsets.ModelViewSet):
@@ -40,11 +57,21 @@ class ContactViewSet(viewsets.ModelViewSet):
         Overriding queryset method 
         Fetches record according to owner and membership of a group
         """
-        contact_info = Contact.objects.prefetch_related(
-            Prefetch(
-                'group_group_contacts',
-                queryset=Group.objects.filter(Q(owner=self.request.user) | Q(
-                    group_members_in=[self.request.user, ])),
-            )
-        )
-        return contact_info
+        member_info = Member.object.filter(user=self.request.user)
+        if member_info.role == 'OWNER' or member_info.role == 'ADMIN':
+            contact_info = Contact.objects.filter(group_id=member_info.group.id)        
+            return contact_info
+    
+    
+class MemberViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for maintaining group Member
+    """
+    queryset = Member.objects.all()
+    permission_classess = (IsTokenValid, IsValidGroupUser)
+    serializer_class = ContactSerializer
+
+    def get_serializer_context(self, *args, **kwargs):
+        """
+        """
+        return {'request': self.request}

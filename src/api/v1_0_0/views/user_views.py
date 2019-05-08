@@ -8,11 +8,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 from rest_framework.decorators import action
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework_jwt.settings import api_settings
 from user.models import (User, BlackListedToken)
 from utils.jwt_utils import jwt_response_payload_handler
 from ..serializers.user_serializers import (UserSerializer, BlackListedTokenSerializer)
 from ..permissions.token_permissions import IsTokenValid
+from ..permissions.user_permissions import IsListAction
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -32,7 +34,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action in self.action_list:
             permission_classes = [permissions.AllowAny]
         else:
-            permission_classes = [IsTokenValid, permissions.IsAuthenticated]
+            permission_classes = [IsTokenValid, permissions.IsAuthenticated, IsListAction]
         return [permission() for permission in permission_classes]
 
     @action(detail=True, methods=['POST'])

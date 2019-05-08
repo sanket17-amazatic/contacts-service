@@ -11,7 +11,7 @@ class Contact(SoftDeletionModel, models.Model):
     Group Contact details
     """
     first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
     company = models.CharField(max_length=100, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     dob = models.DateField(null=True, blank=True,)
@@ -25,7 +25,7 @@ class Contact(SoftDeletionModel, models.Model):
         """
         String representation for group member 
         """
-        return self.first_name + self.last_name 
+        return "{} {}".format(self.first_name, self.last_name)
 
 class ContactNumber(SoftDeletionModel, models.Model):
     """
@@ -61,7 +61,6 @@ class Group(SoftDeletionModel, models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
     contacts = models.ManyToManyField(Contact, blank=True, related_name='group_contacts')
-    members = models.ManyToManyField(User, blank=True, related_name='group_members')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -70,3 +69,26 @@ class Group(SoftDeletionModel, models.Model):
         String representation of group class
         """
         return self.name
+
+class Member(SoftDeletionModel, models.Model):
+    """
+    Member for group
+    """
+    ADM = 'ADM'
+    OWN = 'OWN'
+    MEM = 'MEM'
+
+    ROLE_TYPES = (
+        (ADM, 'ADMIN'),
+        (OWN, 'OWNER'),
+        (MEM, 'MEMBER'),
+    )
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='members')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='groups')
+    role = models.CharField(choices=ROLE_TYPES, max_length=10)
+
+    def __str__(self):
+        """
+        String representation of member class
+        """
+        return '{} {}'.format(self.user.username, self.roles)
