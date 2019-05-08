@@ -162,7 +162,7 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                 if group_member in stored_member:
                     stored_member.remove(group_member)
                 else:
-                    if group_member.id == instance.owner:
+                    if group_member == instance.owner:
                         raise serializers.ValidationError('Owner cannot be added as group member')
                     instance.members.add(group_member)    
             for member in stored_member:

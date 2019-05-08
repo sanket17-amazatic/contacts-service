@@ -16,6 +16,6 @@ class IsValidGroupUser(permissions.BasePermission):
         """
         Method check requested user is owner or member of group
         """
-        valid_user = Group.objects.filter(Q(owner=request.user) | Q(group_members=request.user))
+        valid_user = Group.objects.filter(Q(owner=request.user) | Q(group_members_in =[request.user,]))
         return valid_user is None
 

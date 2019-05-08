@@ -18,6 +18,9 @@ class Contact(SoftDeletionModel, models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ('first_name',)
+
     def __str__(self):
         """
         String representation for group member 
