@@ -14,6 +14,8 @@ class IsTokenValid(permissions.BasePermission):
         """
         user_id = request.user.id            
         is_allowed_user = True
+        if request.auth is None:
+            return False
         token = request.auth.decode("utf-8")
         try:
             is_blackListed = BlackListedToken.objects.get(user=user_id, token=token)

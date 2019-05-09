@@ -19,6 +19,6 @@ class IsValidGroupUser(permissions.BasePermission):
         valid_user = Member.objects.filter(user=request.user)
         if valid_user is None:
             return False
-        if valid_user.role != 'ADMIN' or valid_user.role != 'OWNER':
+        if valid_user.role_type != 'ADMIN' or valid_user.role_type != 'OWNER':
             return False
         return True

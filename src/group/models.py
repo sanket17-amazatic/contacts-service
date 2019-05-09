@@ -60,7 +60,7 @@ class Group(SoftDeletionModel, models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_groups')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
-    contacts = models.ManyToManyField(Contact, blank=True, related_name='group_contacts')
+    contacts = models.ManyToManyField(Contact, blank=True, related_name='contact_groups')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -83,9 +83,9 @@ class Member(SoftDeletionModel, models.Model):
         (OWN, 'OWNER'),
         (MEM, 'MEMBER'),
     )
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='group')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='member')
-    role = models.CharField(choices=ROLE_TYPES, max_length=10)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='members')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='group_member')
+    role_type = models.CharField(choices=ROLE_TYPES, max_length=10)
 
     def __str__(self):
         """

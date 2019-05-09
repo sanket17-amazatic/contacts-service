@@ -8,7 +8,6 @@ from user.models import User
 from group.models import (Group, Contact, ContactNumber, ContactEmail, Member)
 from .user_serializers import UserSerializer
 
-
 class ContactNumberSerializer(serializers.ModelSerializer):
     """
     Serializer class for Member's Contact number
@@ -18,7 +17,6 @@ class ContactNumberSerializer(serializers.ModelSerializer):
         fields = ('id', 'phone', 'deleted_at')
         extra_kwargs = {'id': {'read_only': False, 'required': False}}
 
-
 class ContactEmailSerializer(serializers.ModelSerializer):
     """
     Serializer class for Contact Member's email
@@ -27,7 +25,6 @@ class ContactEmailSerializer(serializers.ModelSerializer):
         model = ContactEmail
         fields = ('id', 'email', 'deleted_at')
         extra_kwargs = {'id': {'read_only': False, 'required': False}}
-
 
 class ContactCreationAndUpdationMixin():
     """
@@ -97,7 +94,6 @@ class ContactCreationAndUpdationMixin():
         instance.save()
         return instance
 
-
 class ContactSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializer):
     """
     Serializer class for Group contact details
@@ -118,7 +114,7 @@ def check_user_validity(user):
     if user in None:
         raise serializers.ValidationError(
             'Requested user is not a member of this group')
-    if user.role != 'ADMIN' or user.role != 'OWNER':
+    if user.role_type != 'ADMIN' or user.role_type != 'OWNER':
         raise serializers.ValidationError(
             'Requested user has no permission for this operation')
     else:
@@ -131,21 +127,21 @@ class MemberSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Member
-        fields = ('id', 'group', 'user', 'roles')
+        fields = ('id', 'group', 'user', 'role_type')
         extra_kwargs = {'id': {'read_only': False, 'required': False}}
 
     def valdiate(self, data):
         """
         Validating method to check for requested user valid role
         """
-        group_id = data.get('group')
-        user_id = data.get('user')
+        group = data.get('group')
+        user = data.get('user')
 
-        group = Group.object.filter(id=group_id)
+        group = Group.object.filter(id=group)
         if group is None:
             raise serializers.ValidationError('No such group present')
 
-        user = User.objects.filter(id=user_id)
+        user = User.objects.filter(id=user)
         if user is None:
             raise serializers.ValidationError('No such user present')
 
@@ -160,7 +156,7 @@ class MemberSerializer(serializers.ModelSerializer):
         Creating reln between group and member
         """
         new_member = Member.object.create(
-            group=validated_data.get('group'), user=validated_data.get('user'), role=validated_data.get('role'))
+            group=validated_data.get('group'), user=validated_data.get('user'), role_type=validated_data.get('role_type'))
         new_member.save()
         return new_member
 
@@ -171,7 +167,7 @@ class MemberSerializer(serializers.ModelSerializer):
         """
         instance.group = validated_data.get('group', instance.group)
         instance.user = validated_data.get('user', instance.user)
-        instance.role = validated_data.get('role', instance.role)
+        instance.role_type = validated_data.get('role_type', instance.role_type)
         instance.save()
         return instance
 
@@ -202,6 +198,7 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                 group_contact = super().create(dict(contact_data))
                 group.contacts.add(group_contact)
 
+        print('members from request', validated_data.get('members'))
         if validated_data.get('members') is not None:
             req_member_data = validated_data.pop('members')
             for member_data in req_member_data:
@@ -209,12 +206,13 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                     continue
                 else:
                     owner_member = Member.objects.create(
-                        group=group, user=member_data.user, role=member_data.role)
+                        group=group, user=member_data.user, role_type=member_data.role_type)
                     owner_member.save()
-        else:
-            owner_member = Member.objects.create(
-                group=group.id, user=group.owner.id, role='OWN')
-            owner_member.save()
+        
+        owner_member = Member.objects.create(
+            group=group, user=group.owner, role_type='OWNER')
+        owner_member.save()
+        print('owner->',owner_member)
         return group
 
     @transaction.atomic
@@ -230,7 +228,7 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
         if validated_data.get('contacts'):
             req_group_contact = validated_data.pop('contacts')
             stored_contact_id_list = list(Contact.objects.filter(
-                group_contacts__id=instance.id).values_list('id', flat=True))
+                contact_groups__id=instance.id).values_list('id', flat=True))
 
             for group_contact in req_group_contact:
                 if group_contact.get('id', None) is not None:
@@ -252,7 +250,7 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                     stored_member.remove(group_member)
                 else:
                     new_member = Member.objects.create(
-                        group=instance.id, user=group_member.user, role=group_member.role)
+                        group=instance.id, user=group_member.user, role_type=group_member.role_type)
                     new_member.save()
             for member in stored_member:
               member.delete()
