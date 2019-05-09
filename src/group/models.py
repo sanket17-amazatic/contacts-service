@@ -83,12 +83,12 @@ class Member(SoftDeletionModel, models.Model):
         (OWN, 'OWNER'),
         (MEM, 'MEMBER'),
     )
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='members')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='groups')
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='group')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='member')
     role = models.CharField(choices=ROLE_TYPES, max_length=10)
 
     def __str__(self):
         """
         String representation of member class
         """
-        return '{} {}'.format(self.user.username, self.roles)
+        return self.user.username

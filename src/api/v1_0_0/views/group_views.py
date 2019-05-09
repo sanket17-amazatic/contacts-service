@@ -21,6 +21,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self, *args, **kwargs):
         """
+        Passing request data to Group serializer
         """
         return {'request': self.request}
 
@@ -34,8 +35,11 @@ class GroupViewSet(viewsets.ModelViewSet):
         group_info = Group.objects.filter(id__in=group_id_list)
         return group_info
     
-    @action(detail=True, methods=['GET'], id=None)
-    def member(self, request, **kwargs):
+    @action(detail=True, methods=['GET'])
+    def member(self, request, id=None, **kwargs):
+        """
+        Method to fetch group members using group id
+        """
         if id is None:
             return Response({'message':'id not found'}, status=status.HTTP_400_BAD_REQUEST) 
         member_data = Member.objects.filter(group_id=id)
@@ -57,10 +61,10 @@ class ContactViewSet(viewsets.ModelViewSet):
         Overriding queryset method 
         Fetches record according to owner and membership of a group
         """
-        member_info = Member.object.filter(user=self.request.user)
-        if member_info.role == 'OWNER' or member_info.role == 'ADMIN':
-            contact_info = Contact.objects.filter(group_id=member_info.group.id)        
-            return contact_info
+        group_id_list = list(Member.objects.filter(
+            user=self.request.user).values_list('group', flat=True))
+        contact_data = Contact.objects.filter(group__id__in=group_id_list)        
+        return contact_data
     
     
 class MemberViewSet(viewsets.ModelViewSet):
@@ -73,5 +77,6 @@ class MemberViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self, *args, **kwargs):
         """
+        Passing request object to Member serializer
         """
         return {'request': self.request}

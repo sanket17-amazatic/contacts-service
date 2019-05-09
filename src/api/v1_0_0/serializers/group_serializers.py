@@ -40,20 +40,17 @@ class ContactCreationAndUpdationMixin():
         Creating contact and contact number
         """
         member = Contact.objects.create(first_name=validated_data.get('first_name'),
-                                        last_name=validated_data.get(
-                                            'last_name'),
+                                        last_name=validated_data.get('last_name'),
                                         company=validated_data.get('company'),
                                         address=validated_data.get('address'),
                                         dob=validated_data.get('dob'))
         member.save()
         contact_numbers = validated_data.pop('contact')
-        contact_number_objects = [ContactNumber(
-            contact=member, phone=phone_number['phone']) for phone_number in contact_numbers]
+        contact_number_objects = [ContactNumber(contact=member, phone=phone_number['phone']) for phone_number in contact_numbers]
         ContactNumber.objects.bulk_create(contact_number_objects)
 
         contact_emails = validated_data.pop('email')
-        contact_email_objects = [ContactEmail(
-            contact=member, email=email['email']) for email in contact_emails]
+        contact_email_objects = [ContactEmail(contact=member, email=email['email']) for email in contact_emails]
         ContactEmail.objects.bulk_create(contact_email_objects)
         return member
 
@@ -62,38 +59,31 @@ class ContactCreationAndUpdationMixin():
         """
         Overiding update method for updating member+contact detail
         """
-        instance.first_name = validated_data.get(
-            'first_name', instance.first_name)
-        instance.last_name = validated_data.get(
-            'last_name', instance.last_name)
-        instance.email = validated_data.get('email', instance.email)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.company = validated_data.get('company', instance.company)
         instance.address = validated_data.get('address', instance.address)
         instance.dob = validated_data.get('dob', instance.dob)
 
         contact_numbers = validated_data.pop('contact')
-        stored_contact_id_list = list(ContactNumber.objects.filter(
-            contact=instance.id).values_list('id', flat=True))
+        stored_contact_id_list = list(ContactNumber.objects.filter(contact=instance.id).values_list('id', flat=True))
         for phone_number in contact_numbers:
             if phone_number.get('id', None) is not None:
-                contact_obj = ContactNumber.objects.get(
-                    id=phone_number.get('id'))
+                contact_obj = ContactNumber.objects.get(id=phone_number.get('id'))
                 if contact_obj.phone != phone_number.get('phone'):
                     contact_obj.phone = phone_number.get('phone')
                 stored_contact_id_list.remove(phone_number.get('id'))
                 contact_obj.save()
             else:
-                new_contact_obj = ContactNumber.objects.create(
-                    contact=instance, phone=phone_number.get('phone'))
+                new_contact_obj = ContactNumber.objects.create(contact=instance, phone=phone_number.get('phone'))
 
         ContactNumber.objects.filter(id__in=stored_contact_id_list).delete()
 
         contact_emails = validated_data.pop('email')
-        stored_contact_id_list_for_email = list(ContactEmail.objects.filter(
-            contact=instance.id).values_list('id', flat=True))
+        stored_contact_id_list_for_email = list(ContactEmail.objects.filter(contact=instance.id).values_list('id', flat=True))
         for email_rec in contact_emails:
             if email_rec.get('id', None) is not None:
-                contact_email_obj = ContactEmail.objects.get(
-                    id=email_rec.get('id'))
+                contact_email_obj = ContactEmail.objects.get(id=email_rec.get('id'))
                 if contact_email_obj.email != email_rec.get('email'):
                     contact_email_obj.email = email_rec.get('email')
                 stored_contact_id_list_for_email.remove(email_rec.get('id'))
@@ -102,8 +92,7 @@ class ContactCreationAndUpdationMixin():
                 new_contact_email_obj = ContactEmail.objects.create(
                     contact=instance, email=email_rec.get('email'))
 
-        ContactEmail.objects.filter(
-            id__in=stored_contact_id_list_for_email).delete()
+        ContactEmail.objects.filter(id__in=stored_contact_id_list_for_email).delete()
 
         instance.save()
         return instance
@@ -147,6 +136,7 @@ class MemberSerializer(serializers.ModelSerializer):
 
     def valdiate(self, data):
         """
+        Validating method to check for requested user valid role
         """
         group_id = data.get('group')
         user_id = data.get('user')
