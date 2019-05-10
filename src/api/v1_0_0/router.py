@@ -15,7 +15,7 @@ ROUTER.register(r'users', views.UserViewSet, base_name='user')
 ROUTER.register(r'logout', views.LogoutViewSet, base_name='logout')
 ROUTER.register(r'groups', views.GroupViewSet, base_name='groups')
 ROUTER.register(r'contacts', views.ContactViewSet, base_name='contact')
-
+ROUTER.register(r'members', views.MemberViewSet, base_name='members')
 
 urlpatterns = [
     url(r'', include(ROUTER.urls)),

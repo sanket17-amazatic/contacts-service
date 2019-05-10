@@ -125,6 +125,7 @@ class MemberSerializer(serializers.ModelSerializer):
     """
     Serializer class for group members
     """
+    user = UserSerializer()
     class Meta:
         model = Member
         fields = ('id', 'group', 'user', 'role_type')

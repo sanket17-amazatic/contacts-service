@@ -36,16 +36,15 @@ class GroupViewSet(viewsets.ModelViewSet):
         return group_info
     
     @action(detail=True, methods=['GET'])
-    def member(self, request, pk=None, **kwargs):
+    def member(self, request, **kwargs):
         """
         Method to fetch group members using group id
         """
         group_obj = self.get_object()
-        if pk is None:
-            return Response({'message':'pk not found'}, status=status.HTTP_400_BAD_REQUEST) 
         member_data = group_obj.members.all()
+        print(member_data)
         if member_data is not None:
-            serializer_data = MemberSerializer(member_data)
+            serializer_data = MemberSerializer(member_data, many=True)
             return Response(serializer_data.data)
         else:
             return Response({'message':'No details found'}, status=status.HTTP_404_NOT_FOUND)
@@ -76,7 +75,7 @@ class MemberViewSet(viewsets.ModelViewSet):
     """
     queryset = Member.objects.all()
     permission_classess = (IsTokenValid, IsValidGroupUser)
-    serializer_class = ContactSerializer
+    serializer_class = MemberSerializer
 
     def get_serializer_context(self, *args, **kwargs):
         """
