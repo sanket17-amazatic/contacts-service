@@ -42,7 +42,8 @@ class UserViewSet(viewsets.ModelViewSet):
         Overriding queryset method 
         Fetches record according of the requested user
         """
-        user_info = User.objects.filter(id__in=self.request.user.id)
+        print(self.request.user)
+        user_info = User.objects.filter(phone=self.request.user)
         return user_info
 
     @action(detail=True, methods=['POST'])
