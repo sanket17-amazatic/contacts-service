@@ -3,6 +3,7 @@ View for contact user application user
 """
 from django.conf import settings
 from django.contrib.auth import authenticate
+from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -23,7 +24,6 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     Viewset for User
     """
-    queryset = User.objects.all()
     serializer_class = UserSerializer
     action_list = ['forget', 'login', 'verify', 'create']
 
@@ -36,6 +36,14 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsTokenValid, permissions.IsAuthenticated, IsListAction]
         return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        """
+        Overriding queryset method 
+        Fetches record according of the requested user
+        """
+        user_info = User.objects.filter(id__in=self.request.user.id)
+        return user_info
 
     @action(detail=True, methods=['POST'])
     def forget(self, request, **kwargs):
@@ -85,12 +93,13 @@ class UserViewSet(viewsets.ModelViewSet):
         if request.user.is_authenticated:
             return Response({'details':'You are already authenticated'})
 
-        req_username = request.data.get('username')
+        req_phone = request.data.get('phone')
         req_password = request.data.get('password')
-        if req_username is None or req_password is None:
-            return Response({'details':'Username or password is empty'}, status=status.HTTP_400_BAD_REQUEST)
-        user = authenticate(username=req_username, password=req_password)
+        if req_phone is None or req_password is None:
+            return Response({'details':'User phone number or password is empty'}, status=status.HTTP_400_BAD_REQUEST)
+        user = authenticate(phone=req_phone, password=req_password)
         if user is not None:
+            print('User number->', user.phone)
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)
             response_data = jwt_response_payload_handler(token, user, request)

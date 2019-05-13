@@ -182,15 +182,15 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
 
     class Meta:
         model = Group
-        fields = ('id', 'owner', 'name', 'description', 'contacts', 'members')
+        fields = ('id', 'name', 'description', 'contacts', 'members')
 
     @transaction.atomic
     def create(self, validated_data):
         """
         Overriding default create method to create groups
         """
-        group = Group.objects.create(owner=validated_data.get('owner'),
-                                     name=validated_data.get('name'),
+        req_user = self.context['request'].users
+        group = Group.objects.create(name=validated_data.get('name'),
                                      description=validated_data.get('description'))
         group.save()
         if validated_data.get('contacts') is not None:
@@ -199,7 +199,6 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                 group_contact = super().create(dict(contact_data))
                 group.contacts.add(group_contact)
 
-        print('members from request', validated_data.get('members'))
         if validated_data.get('members') is not None:
             req_member_data = validated_data.pop('members')
             for member_data in req_member_data:
@@ -211,9 +210,8 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                     owner_member.save()
         
         owner_member = Member.objects.create(
-            group=group, user=group.owner, role_type='OWNER')
+            group=group, user=req_user, role_type='OWNER')
         owner_member.save()
-        print('owner->',owner_member)
         return group
 
     @transaction.atomic
@@ -223,8 +221,7 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
         """
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get(
-            'email', instance.description)
-        instance.app_user = validated_data.get('app_user', instance.app_user)
+            'description', instance.description)
 
         if validated_data.get('contacts'):
             req_group_contact = validated_data.pop('contacts')

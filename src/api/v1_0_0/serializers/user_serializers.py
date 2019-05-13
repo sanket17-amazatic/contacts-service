@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)
     class Meta:
         model = User
-        fields = ('id', 'username', 'password', 'password2','email', 'phone', 'deleted_at')
+        fields = ('id', 'password', 'password2', 'phone', 'is_active')
 
     def validate(self, data):
         """
@@ -31,8 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.filter(phone=validated_data.get('phone'))
         if user.count() > 0:
             raise serializers.ValidationError('Entered mobile number is already registered')
-        user_obj = User.objects.create(username=validated_data.get('username'),
-                                        email=validated_data.get('email'), phone=validated_data.get('email'))  
+        user_obj = User.objects.create(phone=validated_data.get('phone'))  
         user_obj.set_password(validated_data.get('password'))
         user_obj.save()
         return user_obj
@@ -46,8 +45,6 @@ class UserSerializer(serializers.ModelSerializer):
             if user.count() > 0:
                 raise serializers.ValidationError('Entered mobile number is already registered')
 
-        instance.username = validated_data.get('username', instance.username)
-        instance.email = validated_data.get('email', instance.email)
         instance.phone = validated_data.get('phone', instance.phone)
         instance.set_password(validated_data.get('password'))
         instance.save()

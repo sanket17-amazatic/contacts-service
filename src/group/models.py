@@ -57,7 +57,6 @@ class Group(SoftDeletionModel, models.Model):
     """
     Group class for app-user
     """
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_groups')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
     contacts = models.ManyToManyField(Contact, blank=True, related_name='contact_groups')

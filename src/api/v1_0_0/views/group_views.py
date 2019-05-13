@@ -12,6 +12,7 @@ from ..serializers.group_serializers import (
 from ..permissions.token_permissions import IsTokenValid
 from ..permissions.group_permissions import IsValidGroupUser
 
+
 class GroupViewSet(viewsets.ModelViewSet):
     """
     Viewset for Group
@@ -30,11 +31,10 @@ class GroupViewSet(viewsets.ModelViewSet):
         Overriding queryset method 
         Fetches record according to owner and membership of a user
         """
-        group_id_list = list(Member.objects.filter(
-            user=self.request.user).values_list('group', flat=True))
-        group_info = Group.objects.filter(id__in=group_id_list)
+        group_info = Group.objects.filter(id__in=Member.objects.filter(
+            user=self.request.user).values('id').distinct())
         return group_info
-    
+
     @action(detail=True, methods=['GET'])
     def member(self, request, **kwargs):
         """
@@ -47,7 +47,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             serializer_data = MemberSerializer(member_data, many=True)
             return Response(serializer_data.data)
         else:
-            return Response({'message':'No details found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'No details found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ContactViewSet(viewsets.ModelViewSet):
@@ -62,13 +62,12 @@ class ContactViewSet(viewsets.ModelViewSet):
         Overriding queryset method 
         Fetches record according to owner and membership of a group
         """
-        group_id_list = list(Member.objects.filter(
-            user=self.request.user).values_list('group', flat=True))
-        contact_data = Contact.objects.filter(contact_groups__in=group_id_list)
-       
+        contact_data = Contact.objects.filter(contact_groups__in=Member.objects.filter(
+            user=self.request.user).values('id').distinct())
+
         return contact_data
-    
-    
+
+
 class MemberViewSet(viewsets.ModelViewSet):
     """
     Viewset for maintaining group Member
