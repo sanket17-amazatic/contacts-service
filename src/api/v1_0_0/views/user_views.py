@@ -12,12 +12,11 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework_jwt.settings import api_settings
 from user.models import (User, BlackListedToken)
-from utils.jwt_utils import jwt_response_payload_handler
+from utils.jwt_utils import (jwt_response_payload_handler,jwt_payload_handler)
 from ..serializers.user_serializers import (UserSerializer, BlackListedTokenSerializer)
 from ..permissions.token_permissions import IsTokenValid
 from ..permissions.user_permissions import IsListAction
 
-jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -42,7 +41,6 @@ class UserViewSet(viewsets.ModelViewSet):
         Overriding queryset method 
         Fetches record according of the requested user
         """
-        print(self.request.user)
         user_info = User.objects.filter(phone=self.request.user)
         return user_info
 
@@ -100,7 +98,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'details':'User phone number or password is empty'}, status=status.HTTP_400_BAD_REQUEST)
         user = authenticate(phone=req_phone, password=req_password)
         if user is not None:
-            print('User number->', user.phone)
+            
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)
             response_data = jwt_response_payload_handler(token, user, request)

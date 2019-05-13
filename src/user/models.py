@@ -9,23 +9,11 @@ from phonenumber_field.modelfields import PhoneNumberField
 from core.models import SoftDeletionModel 
 from .managers import CustomUserManager
 
-
-def is_phone_number_valid(number):
-    """
-    Custom validation for phone number field
-    """
-    try:
-        phone_number = phonenumbers.parse(number, None)
-    except phonenumbers.phonenumberutil.NumberParseException:
-        raise ValidationError('Invalid phone number, numerical values are accepted only')
-    if not phonenumbers.is_valid_number(phone_number):
-         raise ValidationError('Invalid phone number')
-
 class User(SoftDeletionModel, AbstractBaseUser):
     """
     Custom user profile class
     """
-    phone = models.CharField(max_length=15, unique=True, validators=[is_phone_number_valid])
+    phone = PhoneNumberField(unique=True)
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -37,7 +25,7 @@ class User(SoftDeletionModel, AbstractBaseUser):
         """
         String represntation of app user
         """
-        return self.phone
+        return str(self.phone)
 
 class BlackListedToken(models.Model):
     """
