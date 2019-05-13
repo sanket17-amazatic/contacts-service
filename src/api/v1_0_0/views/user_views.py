@@ -14,7 +14,7 @@ from rest_framework_jwt.settings import api_settings
 from user.models import (User, BlackListedToken)
 from utils.jwt_utils import (jwt_response_payload_handler,jwt_payload_handler)
 from ..serializers.user_serializers import (UserSerializer, BlackListedTokenSerializer)
-from ..permissions.token_permissions import IsTokenValid
+from ..permissions.token_permissions import IsBlackListedToken
 from ..permissions.user_permissions import IsListAction
 
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -24,16 +24,16 @@ class UserViewSet(viewsets.ModelViewSet):
     Viewset for User
     """
     serializer_class = UserSerializer
-    action_list = ['forget', 'login', 'verify', 'create']
+    public_action_list = ['forget', 'login', 'verify', 'create']
 
     def get_permissions(self):
         """
         Instantiates and returns the list of permissions that this view requires.
         """
-        if self.action in self.action_list:
+        if self.action in self.public_action_list:
             permission_classes = [permissions.AllowAny]
         else:
-            permission_classes = [IsTokenValid, permissions.IsAuthenticated, IsListAction]
+            permission_classes = [IsBlackListedToken, permissions.IsAuthenticated, IsListAction]
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
@@ -41,11 +41,10 @@ class UserViewSet(viewsets.ModelViewSet):
         Overriding queryset method 
         Fetches record according of the requested user
         """
-        user_info = User.objects.filter(phone=self.request.user)
-        return user_info
+        return User.objects.filter(phone=self.request.user.phone)
 
-    @action(detail=True, methods=['POST'])
-    def forget(self, request, **kwargs):
+    @action(detail=False, methods=['POST'])
+    def set_password(self, request, **kwargs):
         """
         Action function executed for reseting forgotten password
         """
@@ -98,7 +97,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'details':'User phone number or password is empty'}, status=status.HTTP_400_BAD_REQUEST)
         user = authenticate(phone=req_phone, password=req_password)
         if user is not None:
-            
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)
             response_data = jwt_response_payload_handler(token, user, request)

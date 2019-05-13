@@ -15,7 +15,7 @@ def jwt_payload_handler(user):
     """
     return {
         'user_id': user.pk,
-        'user':  str(user.phone),
+        'username':  str(user.phone),
         'exp': datetime.utcnow() + settings.JWT_AUTH['JWT_EXPIRATION_DELTA'],
         'orig_iat': timegm(
             datetime.utcnow().utctimetuple()
@@ -28,6 +28,6 @@ def jwt_response_payload_handler(token, user=None, request=None):
     """
     return {
         'token': token,
-        'user':str(user.phone),
+        'username':str(user.phone),
         'expire': timezone.now() + expiry_delta - timedelta(seconds=200)
     }

@@ -4,7 +4,7 @@ User defined permission for account application
 from rest_framework import permissions
 from user.models import BlackListedToken
 
-class IsTokenValid(permissions.BasePermission):
+class IsBlackListedToken(permissions.BasePermission):
     """
     Class to check token validity
     """

@@ -9,7 +9,7 @@ from rest_framework import status
 from group.models import (Group, Contact, Member)
 from ..serializers.group_serializers import (
     GroupSerializer, ContactSerializer, MemberSerializer)
-from ..permissions.token_permissions import IsTokenValid
+from ..permissions.token_permissions import IsBlackListedToken
 from ..permissions.group_permissions import IsValidGroupUser
 
 
@@ -18,7 +18,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     Viewset for Group
     """
     serializer_class = GroupSerializer
-    permission_classess = (IsTokenValid, IsValidGroupUser)
+    permission_classess = (IsBlackListedToken, IsValidGroupUser)
 
     def get_serializer_context(self, *args, **kwargs):
         """
@@ -54,7 +54,7 @@ class ContactViewSet(viewsets.ModelViewSet):
     """
     Viewset for maintaining group contact
     """
-    permission_classess = (IsTokenValid, IsValidGroupUser)
+    permission_classess = (IsBlackListedToken, IsValidGroupUser)
     serializer_class = ContactSerializer
 
     def get_queryset(self):
@@ -73,7 +73,7 @@ class MemberViewSet(viewsets.ModelViewSet):
     Viewset for maintaining group Member
     """
     queryset = Member.objects.all()
-    permission_classess = (IsTokenValid, IsValidGroupUser)
+    permission_classess = (IsBlackListedToken, IsValidGroupUser)
     serializer_class = MemberSerializer
 
     def get_serializer_context(self, *args, **kwargs):
