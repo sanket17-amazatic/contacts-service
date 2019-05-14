@@ -90,4 +90,4 @@ class Member(SoftDeletionModel, models.Model):
         """
         String representation of member class
         """
-        return self.user.username
+        return str(self.user.phone)

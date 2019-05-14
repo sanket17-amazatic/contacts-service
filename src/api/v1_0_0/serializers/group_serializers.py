@@ -189,7 +189,7 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
         """
         Overriding default create method to create groups
         """
-        req_user = self.context['request'].users
+        req_user = self.context['request'].user
         group = Group.objects.create(name=validated_data.get('name'),
                                      description=validated_data.get('description'))
         group.save()
