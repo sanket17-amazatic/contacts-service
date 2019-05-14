@@ -78,9 +78,9 @@ class Member(SoftDeletionModel, models.Model):
     MEM = 'MEM'
 
     ROLE_TYPES = (
-        (ADM, 'ADMIN'),
-        (OWN, 'OWNER'),
-        (MEM, 'MEMBER'),
+        (ADM, "ADMIN"),
+        (OWN, "OWNER"),
+        (MEM, "MEMBER"),
     )
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='members')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='group_member')

@@ -13,6 +13,7 @@ from rest_framework.exceptions import MethodNotAllowed
 from rest_framework_jwt.settings import api_settings
 from user.models import (User, BlackListedToken)
 from utils.jwt_utils import (jwt_response_payload_handler,jwt_payload_handler)
+from utils.otp_utils import TOTPVerification
 from ..serializers.user_serializers import (UserSerializer, BlackListedTokenSerializer)
 from ..permissions.token_permissions import IsBlackListedToken
 from ..permissions.user_permissions import IsListAction
@@ -23,6 +24,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     Viewset for User
     """
+    otp = TOTPVerification()
     serializer_class = UserSerializer
     public_action_list = ['forget', 'login', 'verify', 'create']
 
@@ -42,6 +44,12 @@ class UserViewSet(viewsets.ModelViewSet):
         Fetches record according of the requested user
         """
         return User.objects.filter(phone=self.request.user.phone)
+    
+    def get_serializer_context(self, *args, **kwargs):
+        """
+        Passing request data to User serializer
+        """
+        return {'request': self.request}
 
     @action(detail=False, methods=['POST'])
     def set_password(self, request, **kwargs):
@@ -62,12 +70,16 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer_data.data)
     
     @action(detail=False, methods=['POST'])
-    def send_otp(self, request, **kwargs):
-        pass
-
-    @action(detail=False, methods=['POST'])
     def verify_otp(self, request, **kwargs):
-        pass
+        req_otp = request.data.get('otp')
+        req_otp = int(req_otp)
+        valid_flag = self.otp.verify_token(req_otp)
+        return Response({'valid':valid_flag}) 
+
+    @action(detail=False, methods=['GET'])
+    def get_otp(self, request, **kwargs):
+        token = self.otp.generate_token()
+        return Response({'otp': token})
 
     @action(detail=False, methods=['POST'])
     def verify(self, request, **kwargs):
