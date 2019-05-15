@@ -33,7 +33,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         Fetches record according to owner and membership of a user
         """
         group_info = Group.objects.filter(id__in=Member.objects.filter(
-            user=self.request.user).values('id').distinct())
+            user=self.request.user).values('group').distinct())
         return group_info
 
     @action(detail=True, methods=['GET'])
