@@ -14,7 +14,7 @@ class User(SoftDeletionModel, AbstractBaseUser):
     Custom user profile class
     """
     phone = PhoneNumberField(unique=True)
-    is_active = models.BooleanField(default=False)
+    is_otp_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

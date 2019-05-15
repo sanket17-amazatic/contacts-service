@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)
     class Meta:
         model = User
-        fields = ('id', 'password', 'password2', 'phone', 'is_active')
+        fields = ('id', 'password', 'password2', 'phone', 'is_otp_verified')
 
     def validate(self, data):
         """
