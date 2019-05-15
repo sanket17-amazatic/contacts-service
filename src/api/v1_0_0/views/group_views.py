@@ -76,12 +76,13 @@ class GroupViewSet(viewsets.ModelViewSet):
         if user_data is None:
             return Response({'message': 'User with this number is not registered'}, status=status.HTTP_404_NOT_FOUND)
         group = self.get_object()
-        if group.members.filter(user=user_data) is not None:
+        if group.members.filter(user=user_data).count() != 0:
             return Response({'message': 'User is already member of this group'}, status=status.HTTP_400_BAD_REQUEST)
         member_role = request.data.get('role')
         new_member_data = Member.objects.create(group=group, user=user_data,role_type=member_role)
         new_member_data.save()
-        return Response(new_member_data)
+        serializer_data = MemberSerializer(new_member_data)
+        return Response(serializer_data.data)
 
     @action(detail=True, methods=['POST'], url_path='add-contact', url_name='add_contact')
     def add_contact(self, request, **kwargs):

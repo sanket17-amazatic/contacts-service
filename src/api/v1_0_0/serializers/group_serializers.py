@@ -147,6 +147,7 @@ class MemberSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('No such user present')
 
         req_user = self.context['request'].user
+        print(req_user)
         valid_user = Member.object.filter(user=req_user, group=group)
         if check_user_validity(valid_user):
             return data
@@ -166,6 +167,7 @@ class MemberSerializer(serializers.ModelSerializer):
         Overriding default update
         Check for requested user is admin or owner
         """
+        #  print(self.context['request'].user)
         instance.group = validated_data.get('group', instance.group)
         instance.user = validated_data.get('user', instance.user)
         instance.role_type = validated_data.get('role_type', instance.role_type)
@@ -178,7 +180,7 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
     Serialzer class for App user Group
     """
     contacts = ContactSerializer(many=True)
-    members = MemberSerializer(many=True)
+    members = MemberSerializer(many=True, read_only=True)
 
     class Meta:
         model = Group
@@ -199,19 +201,21 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                 group_contact = super().create(dict(contact_data))
                 group.contacts.add(group_contact)
 
+        owner_member = Member.objects.create(
+            group=group, user=req_user, role_type='owner')
+        owner_member.save()
+
         if validated_data.get('members') is not None:
             req_member_data = validated_data.pop('members')
             for member_data in req_member_data:
-                if member_data.user == group.owner:
+                if member_data.get('phone') == req_user:
                     continue
                 else:
-                    owner_member = Member.objects.create(
-                        group=group, user=member_data.user, role_type=member_data.role_type)
-                    owner_member.save()
+                    user = User.objects.filter(phone=req_member_data.get('phone'))
+                    new_member = Member.objects.create(
+                        group=group, user=user, role_type=member_data.get('role_type'))
+                    new_member.save()
         
-        owner_member = Member.objects.create(
-            group=group, user=req_user, role_type='OWNER')
-        owner_member.save()
         return group
 
     @transaction.atomic
@@ -241,17 +245,18 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
 
         if validated_data.get('members'):
             req_group_member = validated_data.pop('members')
-            stored_member = Member.objects.filter(group=instance.id)
-
+            stored_member = list(Member.objects.filter(group=instance.id).values_list('user', flat=True))
             for group_member in req_group_member:
-                if group_member in stored_member:
-                    stored_member.remove(group_member)
+                if group_member.get('id',None) is not None:
+                    user_id = Member.objects.filter(id=group_member.get('id')).values('user')
+                    stored_member.remove(user_id[0]['user'])
                 else:
+                    user = User.objects.filter(phone=group_member.get('phone'))
                     new_member = Member.objects.create(
-                        group=instance.id, user=group_member.user, role_type=group_member.role_type)
+                        group=instance.id, user=user, role_type=group_member.get('role_type'))
                     new_member.save()
-            for member in stored_member:
-              member.delete()
+           
+            Member.objects.filter(user__in=stored_member).delete()
 
         instance.save()
         return instance
