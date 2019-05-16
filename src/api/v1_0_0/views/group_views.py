@@ -129,7 +129,6 @@ class ContactViewSet(viewsets.ModelViewSet):
 
         return contact_data
 
-
 class MemberViewSet(viewsets.ModelViewSet):
     """
     Viewset for maintaining group Member
@@ -143,3 +142,15 @@ class MemberViewSet(viewsets.ModelViewSet):
         Passing request object to Member serializer
         """
         return {'request': self.request}
+    
+    def destroy(self, request, *args, **kwargs):
+        """
+        Overriding delete  
+        Owner cannot be deleted.
+        """
+        instance = self.get_object()
+        if instance.role_type.lower() == 'owner':
+            return Response({'message': 'Owner cannot be deleted'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
