@@ -19,7 +19,17 @@ class GroupViewSet(viewsets.ModelViewSet):
     Viewset for Group
     """
     serializer_class = GroupSerializer
-    permission_classess = (IsBlackListedToken, IsValidGroupUser)
+    permission_classes = (IsBlackListedToken, IsValidGroupUser)
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action == 'create':
+            permission_classes = [IsBlackListedToken,]
+        else:
+            permission_classes = [IsBlackListedToken, IsValidGroupUser]
+        return [permission() for permission in permission_classes]
 
     def get_serializer_context(self, *args, **kwargs):
         """
@@ -106,7 +116,7 @@ class ContactViewSet(viewsets.ModelViewSet):
     """
     Viewset for maintaining group contact
     """
-    permission_classess = (IsBlackListedToken, IsValidGroupUser)
+    permission_classes = (IsBlackListedToken, IsValidGroupUser)
     serializer_class = ContactSerializer
 
     def get_queryset(self):
@@ -125,7 +135,7 @@ class MemberViewSet(viewsets.ModelViewSet):
     Viewset for maintaining group Member
     """
     queryset = Member.objects.all()
-    permission_classess = (IsBlackListedToken, IsValidGroupUser)
+    permission_classes = (IsBlackListedToken, IsValidGroupUser)
     serializer_class = MemberSerializer
 
     def get_serializer_context(self, *args, **kwargs):

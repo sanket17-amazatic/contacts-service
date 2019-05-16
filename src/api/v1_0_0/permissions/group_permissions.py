@@ -1,9 +1,8 @@
 """
 Permission for group access
 """
-from django.db.models import Q
 from rest_framework import permissions
-from group.models import (Group, Contact)
+from group.models import (Member, Group)
 
 class IsValidGroupUser(permissions.BasePermission):
     """
@@ -16,9 +15,13 @@ class IsValidGroupUser(permissions.BasePermission):
         """
         Method check requested user is owner or member of group
         """
-        valid_user = Member.objects.filter(user=request.user)
+        if 'members' in request.get_full_path():
+            group = Member.objects.filter(id=view.kwargs.get('pk')).values('group').first()
+            valid_user = Member.objects.filter(user=request.user, group=group['group']).first()
+        elif 'groups' in request.get_full_path():
+            valid_user = Member.objects.filter(user=request.user, group=view.kwargs.get('pk')).first()
         if valid_user is None:
             return False
-        if valid_user.role_type != 'ADMIN' or valid_user.role_type != 'OWNER':
+        if valid_user.role_type == 'member':
             return False
         return True

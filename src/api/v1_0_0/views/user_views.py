@@ -106,7 +106,7 @@ class UserViewSet(viewsets.ModelViewSet):
         req_phone = request.data.get('phone')
         req_password = request.data.get('password')
         if req_phone is None or req_password is None:
-            return Response({'details':'User phone number or password is empty'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'details':'User phone number or password is empty'}, status=status.HTTP_400_BAD_REQUEST) 
         user = authenticate(phone=req_phone, password=req_password)
         if user is not None:
             payload = jwt_payload_handler(user)

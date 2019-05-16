@@ -106,21 +106,6 @@ class ContactSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerial
         fields = ('id', 'first_name', 'last_name', 'company',
                   'address', 'dob', 'email', 'contact', 'deleted_at')
 
-
-def check_user_validity(user):
-    """
-    Checks the request user is admin or owner of group
-    """
-    if user in None:
-        raise serializers.ValidationError(
-            'Requested user is not a member of this group')
-    if user.role_type != 'ADMIN' or user.role_type != 'OWNER':
-        raise serializers.ValidationError(
-            'Requested user has no permission for this operation')
-    else:
-        return True
-
-
 class MemberSerializer(serializers.ModelSerializer):
     """
     Serializer class for group members
@@ -146,16 +131,14 @@ class MemberSerializer(serializers.ModelSerializer):
         if user is None:
             raise serializers.ValidationError('No such user present')
 
-        req_user = self.context['request'].user
-        valid_user = Member.object.filter(user=req_user, group=group)
-        if check_user_validity(valid_user):
-            return data
+        return data
 
     def create(self, validated_data):
         """
         Overriding default create
         Creating reln between group and member
         """
+        
         new_member = Member.object.create(
             group=validated_data.get('group'), user=validated_data.get('user'), role_type=validated_data.get('role_type'))
         new_member.save()
@@ -166,7 +149,6 @@ class MemberSerializer(serializers.ModelSerializer):
         Overriding default update
         Check for requested user is admin or owner
         """
-        #  print(self.context['request'].user)
         instance.group = validated_data.get('group', instance.group)
         instance.user = validated_data.get('user', instance.user)
         instance.role_type = validated_data.get('role_type', instance.role_type)
@@ -259,13 +241,3 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
 
         instance.save()
         return instance
-
-    def delete(self, instance):
-        """
-        Overrding default delete
-        """
-        req_user = self.context['request'].user
-        valid_user = Member.object.filter(
-            user=req_user).filter(group=instance)
-        if check_user_validity(valid_user):
-            return instance.delete()
