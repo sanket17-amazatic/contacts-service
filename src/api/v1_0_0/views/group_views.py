@@ -67,6 +67,9 @@ class GroupViewSet(viewsets.ModelViewSet):
         """
         Method to add group member using group id
         """
+        valid_user = Member.objects.filter(group=self.get_object(), user=self.request.user).values('role_type').first()
+        if valid_user['role_type'] == 'member':
+            return Response({'message': 'You have no right to perform this action'}, status=status.HTTP_403_FORBIDDEN)
         if request.data.get('phone') is None:
             return Response({'message': 'Phone number not provided'}, status=status.HTTP_400_BAD_REQUEST)
         if request.data.get('role') is None:

@@ -147,7 +147,6 @@ class MemberSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('No such user present')
 
         req_user = self.context['request'].user
-        print(req_user)
         valid_user = Member.object.filter(user=req_user, group=group)
         if check_user_validity(valid_user):
             return data
