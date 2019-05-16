@@ -25,10 +25,10 @@ class GroupViewSet(viewsets.ModelViewSet):
         """
         Instantiates and returns the list of permissions that this view requires.
         """
-        if self.action == 'create':
-            permission_classes = [IsBlackListedToken,]
-        else:
+        if self.action == 'update' and self.action == 'delete':
             permission_classes = [IsBlackListedToken, IsValidGroupUser]
+        else:
+            permission_classes = [IsBlackListedToken, ]
         return [permission() for permission in permission_classes]
 
     def get_serializer_context(self, *args, **kwargs):
