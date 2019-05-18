@@ -23,8 +23,8 @@ class CustomUserManager(BaseUserManager):
         """
         Create and save a SuperUser with the given phone and password.
         """
-        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_otp_verified', True)
 
-        if extra_fields.get('is_active') is not True:
-            raise ValueError('Superuser must have is_active=True.')
+        if extra_fields.get('is_otp_verified') is not True:
+            raise ValueError('Superuser must have is_otp_verified=True.')
         return self.create_user(phone, password, **extra_fields)
