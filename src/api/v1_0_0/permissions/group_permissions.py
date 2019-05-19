@@ -22,8 +22,8 @@ class IsValidGroupUser(permissions.BasePermission):
         elif 'groups' in request.get_full_path():
             valid_user = Member.objects.filter(user=request.user, group=view.kwargs.get('pk')).first()
         elif 'contacts' in request.get_full_path():
-            pass
-            
+            group = Group.objects.filter(contacts__id=view.kwargs.get('pk')).first()
+            valid_user = Member.objects.filter(user=request.user, group=group).first()   
         if valid_user is None:
             return False
         if valid_user.role_type == 'member':
