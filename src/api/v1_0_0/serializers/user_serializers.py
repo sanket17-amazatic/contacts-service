@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)
     class Meta:
         model = User
-        fields = ('id', 'password', 'password2', 'phone', 'is_otp_verified')
+        fields = ('id', 'password', 'password2', 'phone', 'name', 'is_otp_verified')
 
     def validate(self, data):
         """
@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.filter(phone=validated_data.get('phone'))
         if user.count() > 0:
             raise serializers.ValidationError('Entered mobile number is already registered')
-        user_obj = User.objects.create(phone=validated_data.get('phone'))  
+        user_obj = User.objects.create(phone=validated_data.get('phone'), name=validated_data.get('name'))  
         user_obj.set_password(validated_data.get('password'))
         user_obj.save()
         return user_obj
@@ -47,6 +47,7 @@ class UserSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Entered mobile number is already registered')
 
         instance.phone = validated_data.get('phone', instance.phone)
+        instance.name = validated_data.get('name', instance.name)
         instance.set_password(validated_data.get('password'))
         instance.save()
         return instance
@@ -57,4 +58,11 @@ class BlackListedTokenSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = BlackListedToken
-        fields = ('token', 'user')
+        fields = ()
+
+    def create(self, validated_data):
+        """
+        Overriding create method to set token in blacklist
+        """
+        blacklist_token_obj = BlackListedToken.objects.create(user=self.context['request'].user, token=self.context['request'].META['HTTP_AUTHORIZATION'].replace('JWT ',''))
+        return blacklist_token_obj

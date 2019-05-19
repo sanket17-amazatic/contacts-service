@@ -121,3 +121,9 @@ class LogoutViewSet(viewsets.ModelViewSet):
     """
     queryset = BlackListedToken.objects.all()
     serializer_class = BlackListedTokenSerializer
+
+    def get_serializer_context(self, *args, **kwargs):
+        """
+        Passing request data to User serializer
+        """
+        return {'request': self.request}

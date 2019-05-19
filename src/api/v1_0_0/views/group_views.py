@@ -112,25 +112,27 @@ class GroupViewSet(viewsets.ModelViewSet):
         serializer_data = ContactSerializer(new_contact_data)       
         return Response(serializer_data.data)
 
-    @action(detail=True, methods=['POST'], url_path='add-contact-bulk', url_name='add_contact_bulk')
-    def add_contact_bulk(self, request, **kwargs):
+    @action(detail=True, methods=['POST'], url_path='add-member-bulk', url_name='add_member_bulk')
+    def add_member_bulk(self, request, **kwargs):
         """
         Method to add contact to group using id
         """
         if request.data is None:
             return Response({'message': 'Invalid member details'}, status=status.HTTP_400_BAD_REQUEST)
         group = self.get_object()
+        print(group)
         invalid_phone_number = []
         valid_phone_number = []
         for member_data in request.data:
-            valid_member = User.objects.filter(phone=member_data.phone)
-            is_already_member = Member.objects.filter(user=valid_member, group=group)
-            if valid_member is not None and is_already_member is None:
-                is_already_member = Member.objects.create(user=valid_member, group=group, role_type='member')
-                valid_member.append(member_data.phone)
+            valid_member = User.objects.filter(phone=member_data['phone'])
+            is_already_member = Member.objects.filter(user__in=valid_member, group=group)
+            if valid_member.count() > 0 and (not is_already_member):
+                user = User.objects.get(phone=member_data['phone'])
+                new_member = Member.objects.create(user=user, group=group, role_type='member')
+                valid_phone_number.append(member_data['phone'])
             else:
-                invalid_phone_number.append(member_data)       
-        return Response({'Success': valid_member, 'Failed': invalid_phone_number})
+                invalid_phone_number.append(member_data['phone'])       
+        return Response({'Success': valid_phone_number, 'Failed': invalid_phone_number})
 
 class ContactViewSet(viewsets.ModelViewSet):
     """

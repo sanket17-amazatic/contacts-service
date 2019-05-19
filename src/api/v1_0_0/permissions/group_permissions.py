@@ -15,11 +15,15 @@ class IsValidGroupUser(permissions.BasePermission):
         """
         Method check requested user is owner or member of group
         """
+        valid_user = None
         if 'members' in request.get_full_path():
             group = Member.objects.filter(id=view.kwargs.get('pk')).values('group').first()
             valid_user = Member.objects.filter(user=request.user, group=group['group']).first()
         elif 'groups' in request.get_full_path():
             valid_user = Member.objects.filter(user=request.user, group=view.kwargs.get('pk')).first()
+        elif 'contacts' in request.get_full_path():
+            pass
+            
         if valid_user is None:
             return False
         if valid_user.role_type == 'member':

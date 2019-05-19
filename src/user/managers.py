@@ -14,6 +14,8 @@ class CustomUserManager(BaseUserManager):
         """
         if not phone:
             raise ValueError('The Phone number must be set')
+        if not extra_fields.get('name') :
+            raise ValueError('Name is required')
         user = self.model(phone=phone, **extra_fields)
         user.set_password(password)
         user.save()

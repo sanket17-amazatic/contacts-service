@@ -14,6 +14,7 @@ class User(SoftDeletionModel, AbstractBaseUser):
     Custom user profile class
     """
     phone = PhoneNumberField(unique=True)
+    name = models.CharField(max_length=100, default='')
     is_otp_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -25,7 +26,7 @@ class User(SoftDeletionModel, AbstractBaseUser):
         """
         String represntation of app user
         """
-        return str(self.phone)
+        return "{} {}".format(self.name, str(self.phone))
 
 class BlackListedToken(models.Model):
     """
