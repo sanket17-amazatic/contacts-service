@@ -120,7 +120,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         if request.data is None:
             return Response({'message': 'Invalid member details'}, status=status.HTTP_400_BAD_REQUEST)
         group = self.get_object()
-        print(group)
         invalid_phone_number = []
         valid_phone_number = []
         for member_data in request.data:
