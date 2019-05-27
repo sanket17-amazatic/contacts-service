@@ -51,7 +51,7 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         return {'request': self.request}
 
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=['POST'], url_path='set-password', url_name='set_password')
     def set_password(self, request, **kwargs):
         """
         Action function executed for reseting forgotten password
@@ -69,16 +69,22 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer_data = UserSerializer(user_obj)
         return Response(serializer_data.data)
     
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=['POST'], url_path='verify-otp', url_name='verify_otp')
     def verify_otp(self, request, **kwargs):
         req_otp = request.data.get('otp')
         req_otp = int(req_otp)
         valid_flag = self.otp.verify_token(req_otp)
         return Response({'valid':valid_flag}) 
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['POST'], url_path='otp', url_name='get_otp')
     def get_otp(self, request, **kwargs):
+        valid_user = User.objects.filter(phone=request.data.get('phone')).exists()
+        if request.data.get('action') == 'Forget Password' and not valid_user:
+            return Response({'details':'Phone number not registered'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        elif request.data.get('action') == 'Signup' and valid_user:
+            return Response({'details':'User already registered'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         token = self.otp.generate_token()
+        # api for sending otp
         return Response({'otp': token})
 
     @action(detail=False, methods=['POST'])
