@@ -155,8 +155,17 @@ class MemberViewSet(viewsets.ModelViewSet):
     Viewset for maintaining group Member
     """
     queryset = Member.objects.all()
-    permission_classes = (IsBlackListedToken, IsValidGroupUser)
     serializer_class = MemberSerializer
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action == 'update' and self.action == 'delete':
+            permission_classes = [IsBlackListedToken, IsValidGroupUser]
+        else:
+            permission_classes = [IsBlackListedToken, ]
+        return [permission() for permission in permission_classes]
 
     def get_serializer_context(self, *args, **kwargs):
         """
@@ -175,3 +184,16 @@ class MemberViewSet(viewsets.ModelViewSet):
         else:
             self.perform_destroy(instance)
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['POST'], url_path='sync', url_name='member_sync')
+    def member_sync(self, request, **kwargs):
+        """
+        Returns registered numbers to application
+        """
+        if request.data is None:
+            return Response({'message': 'Invalid details'}, status=status.HTTP_400_BAD_REQUEST)
+        valid_numbers = []
+        for number_data in request.data:
+            if User.objects.filter(phone=number_data).exists():
+                valid_numbers.append(number_data)       
+        return Response(valid_numbers)
