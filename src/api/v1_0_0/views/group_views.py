@@ -190,7 +190,6 @@ class MemberViewSet(viewsets.ModelViewSet):
         """
         Returns registered numbers to application
         """
-        print(request.data)
         if request.data.get('group_id') is None:
             return Response({'message': 'Invalid Group id'}, status=status.HTTP_400_BAD_REQUEST)
         if request.data.get('numbers') is None:
