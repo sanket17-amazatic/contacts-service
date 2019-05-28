@@ -146,7 +146,7 @@ class ContactViewSet(viewsets.ModelViewSet):
         Fetches record according to owner and membership of a group
         """
         contact_data = Contact.objects.filter(contact_groups__in=Member.objects.filter(
-            user=self.request.user).values('id').distinct())
+            user=self.request.user).values('group_id').distinct())
 
         return contact_data
 
