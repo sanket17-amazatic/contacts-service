@@ -84,7 +84,7 @@ class UserViewSet(viewsets.ModelViewSet):
         elif request.data.get('action') == 'Signup' and valid_user:
             return Response({'details':'User already registered'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         token = self.otp.generate_token()
-        # api for sending otp
+        # api for sending otp   
         return Response({'otp': token})
 
     @action(detail=False, methods=['POST'])
