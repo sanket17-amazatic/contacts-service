@@ -43,6 +43,8 @@ class ContactCreationAndUpdationMixin():
                                         dob=validated_data.get('dob'))
         member.save()
         contact_numbers = validated_data.pop('contact')
+        if contact_numbers == []:
+                raise serializers.ValidationError('Contact Number is required')
         contact_number_objects = [ContactNumber(contact=member, phone=phone_number['phone']) for phone_number in contact_numbers]
         ContactNumber.objects.bulk_create(contact_number_objects)
 
