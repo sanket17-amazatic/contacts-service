@@ -198,6 +198,7 @@ class MemberViewSet(viewsets.ModelViewSet):
             return Response({'message': 'No such group present'}, status=status.HTTP_404_NOT_FOUND)
         valid_numbers = []
         for number_data in request.data.get('numbers'):
-            if User.objects.filter(phone=number_data).exists():
-                valid_numbers.append({"phone": number_data, "is_member": Member.objects.filter(group=request.data.get('group_id'), user__phone=number_data).exists()})     
+            user_name = User.objects.filter(phone=number_data).first()
+            if user_name is not None:                
+                valid_numbers.append({"phone": number_data, "is_member": Member.objects.filter(group=request.data.get('group_id'), user__phone=number_data).exists(), "name": user_name.name})     
         return Response(valid_numbers)
