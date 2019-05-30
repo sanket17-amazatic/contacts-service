@@ -194,13 +194,13 @@ class MemberViewSet(viewsets.ModelViewSet):
         """
         if request.data.get('group_id') is None:
             return Response({'message': 'Invalid Group id'}, status=status.HTTP_400_BAD_REQUEST)
-        if request.data.get('numbers') is None:
-            return Response({'message': 'Invalid Number List'}, status=status.HTTP_400_BAD_REQUEST)
+        if request.data.get('contacts') is None:
+            return Response({'message': 'Contact missing'}, status=status.HTTP_400_BAD_REQUEST)
         if not Group.objects.filter(id=request.data.get('group_id')).exists():
             return Response({'message': 'No such group present'}, status=status.HTTP_404_NOT_FOUND)
         valid_numbers = []
-        for number_data in request.data.get('numbers'):
-            user_name = User.objects.filter(phone=number_data).first()
+        for contact_data in request.data.get('contacts'):
+            user_name = User.objects.filter(phone=contact_data.get('phone')).first()
             if user_name is not None:                
-                valid_numbers.append({"phone": number_data, "is_member": Member.objects.filter(group=request.data.get('group_id'), user__phone=number_data).exists(), "name": user_name.name})     
+                valid_numbers.append({"phone": contact_data.get('phone'), "is_member": Member.objects.filter(group=request.data.get('group_id'), user__phone=contact_data.get('phone')).exists(), "name": contact_data.get('name')})     
         return Response(valid_numbers)
