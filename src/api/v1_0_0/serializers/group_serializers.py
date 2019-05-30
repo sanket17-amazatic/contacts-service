@@ -183,8 +183,9 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
             for contact_data in req_contact_data:
                 group_contact = super().create(dict(contact_data))
                 group.contacts.add(group_contact)
-
-        owner = User.objects.filter(phone=req_user).first()
+        print('****', req_user.phone)
+        owner = User.objects.filter(phone=req_user.phone).first()
+        print(owner)
         owner_member = Member.objects.create(
             group=group, user=req_user, role_type='owner', display_name=owner.name)
         owner_member.save()
@@ -192,7 +193,7 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
         if validated_data.get('members') is not None:
             req_member_data = validated_data.pop('members')
             for member_data in req_member_data:
-                if member_data.get('phone') == req_user:
+                if member_data.get('phone') == req_user.phone:
                     continue
                 else:
                     user = User.objects.filter(phone=req_member_data.get('phone'))
