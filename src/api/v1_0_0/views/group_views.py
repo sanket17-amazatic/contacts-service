@@ -84,6 +84,8 @@ class GroupViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Phone number not provided'}, status=status.HTTP_400_BAD_REQUEST)
         if request.data.get('role') is None:
             return Response({'message': 'Role is required'}, status=status.HTTP_400_BAD_REQUEST)
+        if request.data.get('display_name') is None:
+            return Response({'message': 'Name is required'}, status=status.HTTP_400_BAD_REQUEST)
         req_user = request.data.get('phone')
         user_data = User.objects.get(phone=req_user)
         if user_data is None:
@@ -92,7 +94,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         if group.members.filter(user=user_data).count() != 0:
             return Response({'message': 'User is already member of this group'}, status=status.HTTP_400_BAD_REQUEST)
         member_role = request.data.get('role')
-        new_member_data = Member.objects.create(group=group, user=user_data,role_type=member_role)
+        new_member_data = Member.objects.create(group=group, user=user_data,role_type=member_role, display_name=request.data.get('display_name'))
         new_member_data.save()
         serializer_data = MemberSerializer(new_member_data)
         return Response(serializer_data.data)
@@ -127,7 +129,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             is_already_member = Member.objects.filter(user__in=valid_member, group=group)
             if valid_member.count() > 0 and (not is_already_member):
                 user = User.objects.get(phone=member_data['phone'])
-                new_member = Member.objects.create(user=user, group=group, role_type='member')
+                new_member = Member.objects.create(user=user, group=group, role_type='member', display_name=member_data['display_name'])
                 valid_phone_number.append(member_data['phone'])
             else:
                 invalid_phone_number.append(member_data['phone'])       

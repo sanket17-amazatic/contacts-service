@@ -115,7 +115,7 @@ class MemberSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     class Meta:
         model = Member
-        fields = ('id', 'group', 'user', 'role_type')
+        fields = ('id', 'group', 'user', 'role_type', 'display_name')
         extra_kwargs = {'id': {'read_only': False, 'required': False}}
 
     def valdiate(self, data):
@@ -142,7 +142,7 @@ class MemberSerializer(serializers.ModelSerializer):
         """
         
         new_member = Member.object.create(
-            group=validated_data.get('group'), user=validated_data.get('user'), role_type=validated_data.get('role_type'))
+            group=validated_data.get('group'), user=validated_data.get('user'), role_type=validated_data.get('role_type'), display_name=validated_data.get('display_name'))
         new_member.save()
         return new_member
 
@@ -154,9 +154,9 @@ class MemberSerializer(serializers.ModelSerializer):
         instance.group = validated_data.get('group', instance.group)
         instance.user = validated_data.get('user', instance.user)
         instance.role_type = validated_data.get('role_type', instance.role_type)
+        instance.display_name = validated_data.get('display_name', instance.display_name)
         instance.save()
         return instance
-
 
 class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializer):
     """
@@ -184,8 +184,9 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                 group_contact = super().create(dict(contact_data))
                 group.contacts.add(group_contact)
 
+        owner = User.objects.filter(phone=req_user).first()
         owner_member = Member.objects.create(
-            group=group, user=req_user, role_type='owner')
+            group=group, user=req_user, role_type='owner', display_name=owner.name)
         owner_member.save()
 
         if validated_data.get('members') is not None:
@@ -196,7 +197,7 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                 else:
                     user = User.objects.filter(phone=req_member_data.get('phone'))
                     new_member = Member.objects.create(
-                        group=group, user=user, role_type=member_data.get('role_type'))
+                        group=group, user=user, role_type=member_data.get('role_type'), display_name=member_data.get('display_name'))
                     new_member.save()
         
         return group
@@ -235,9 +236,10 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
                     stored_member.remove(user_id[0]['user'])
                 else:
                     user = User.objects.filter(phone=group_member.get('phone'))
-                    new_member = Member.objects.create(
-                        group=instance.id, user=user, role_type=group_member.get('role_type'))
-                    new_member.save()
+                    if user is not None:
+                        new_member = Member.objects.create(
+                            group=instance.id, user=user, role_type=group_member.get('role_type'), display_name=group_member.get('display_name'))
+                        new_member.save()
            
             Member.objects.filter(user__in=stored_member).delete()
 

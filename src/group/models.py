@@ -84,10 +84,11 @@ class Member(SoftDeletionModel, models.Model):
     )
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='members')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='group_member')
+    display_name = models.CharField(max_length=100, default='')
     role_type = models.CharField(choices=ROLE_TYPES, max_length=10)
 
     def __str__(self):
         """
         String representation of member class
         """
-        return str(self.user.phone)
+        return "{} {}".format(self.display_name, str(self.user.phone))
