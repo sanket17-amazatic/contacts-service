@@ -29,7 +29,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     otp = TOTPVerification()
     serializer_class = UserSerializer
-    public_action_list = ['forget', 'login', 'verify', 'create']
+    public_action_list = ['forget', 'login', 'verify', 'create', 'get_otp', 'verify_otp']
 
     def get_permissions(self):
         """
@@ -75,8 +75,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['POST'], url_path='verify-otp', url_name='verify_otp')
     def verify_otp(self, request, **kwargs):
+        """
+        This method is used to verify the otp
+        """
         req_otp = request.data.get('otp')
-        req_otp = int(req_otp)
         valid_flag = self.otp.verify_token(req_otp)
         return Response({'valid': valid_flag})
 
@@ -93,32 +95,16 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'details': 'User already registered'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         token = self.otp.generate_token()
         otp_message = f"Dear Customer, your OTP is {token} which is valid for 5 minutes"
-        conn = http.client.HTTPSConnection("api.msg91.com")
-        headers = {
-            'authkey': "68904AqY6Ddphfu5cf5b375",
-            'content-type': "application/json"
-        }
+        otp_message = otp_message.replace(' ','%20')
+        conn = http.client.HTTPSConnection("control.msg91.com")
         number = request.data.get('phone')
-        country_code = number[1:3]
-        payload = '''
-                    {
-                        "sender": "1SHIPCO",
-                        "route": "1",
-                        "country": {country_code},
-                        "sms": [
-                                {
-                                    "message": {otp_message},
-                                    "to": [
-                                            {}
-                                        ]
-                                }
-                            ]
-                    }
-                '''.format(country_code, otp_message, number[3:])
-        conn.request("POST", "/api/v2/sendsms?country=91", payload, headers)
+        sms_service_url = f'/api/sendhttp.php?authkey=68904AqY6Ddphfu5cf5b375&mobiles={number[1:]}&message={otp_message}&sender=1SHIPCO&route=4&country={number[1:3]}'
+        conn.request("POST", sms_service_url)
         res = conn.getresponse()
-        resp = res.read().decode("utf-8")
-        return Response(resp)
+        if res.status == 200:
+            return Response({'details':'SMS sent to entered mobile number'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'details': 'Failed to sent sms', 'error':res.read().decode("utf-8"), 'status_code': res.status}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['POST'])
     def verify(self, request, **kwargs):
