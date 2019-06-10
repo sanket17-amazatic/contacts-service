@@ -1,6 +1,7 @@
 """
 View for Group and group member detials
 """
+import json
 from django.db.models import (Q,)
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -199,7 +200,14 @@ class MemberViewSet(viewsets.ModelViewSet):
         if not Group.objects.filter(id=request.data.get('group_id')).exists():
             return Response({'message': 'No such group present'}, status=status.HTTP_404_NOT_FOUND)
         valid_numbers = []
-        for contact_data in request.data.get('contacts'):
+        valid_numbers_set = set()
+        for contact in request.data.get('contacts'):
+                valid_numbers_set.add(json.dumps(contact, sort_keys=True))
+        print(valid_numbers_set)
+        valid_numbers_list = []
+        for contact in valid_numbers_set:
+            valid_numbers_list.append(json.loads(contact))
+        for contact_data in valid_numbers_list:
             user_name = User.objects.filter(phone=contact_data.get('phone')).first()
             if user_name is not None:                
                 valid_numbers.append({"phone": contact_data.get('phone'), "is_member": Member.objects.filter(group=request.data.get('group_id'), user__phone=contact_data.get('phone')).exists(), "name": contact_data.get('name')})     
