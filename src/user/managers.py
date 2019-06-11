@@ -1,9 +1,9 @@
 """
 Custom user manager for creating custom user
 """
-from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import UserManager
 
-class CustomUserManager(BaseUserManager):
+class CustomUserManager(UserManager):
     """
     Custom user model manager where phone is the unique identifiers
     for authentication instead of usernames.

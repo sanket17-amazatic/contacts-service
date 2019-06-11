@@ -60,12 +60,13 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         Action function executed for reseting forgotten password
         """
-        user_obj = self.get_object()
-        entered_phone = kwargs['phone']
-        if entered_phone != user_obj.phone:
-            return Response({'details': 'Entered phone number does not match with registered phone number'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        entered_password = kwargs['password']
-        confirmed_password = kwargs['password2']
+
+        try:
+            user_obj =  User.objects.get(phone=request.data.get('phone'))
+        except User.DoesNotExist:
+            return Response({'details': 'User with this number is not registered'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        entered_password = request.data.get('password')
+        confirmed_password = request.data.get('password2')
         if entered_password != confirmed_password:
             return Response({'details': 'Entered password didnot match'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         user_obj.set_password(entered_password)
