@@ -29,7 +29,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     otp = TOTPVerification()
     serializer_class = UserSerializer
-    public_action_list = ['forget', 'login', 'verify', 'create', 'get_otp', 'verify_otp']
+    public_action_list = ['forget', 'login', 'verify', 'create', 'get_otp', 'verify_otp', 'set_password']
 
     def get_permissions(self):
         """
