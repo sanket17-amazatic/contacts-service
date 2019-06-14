@@ -45,6 +45,10 @@ class GroupViewSet(viewsets.ModelViewSet):
         """
         group_info = Group.objects.filter(id__in=Member.objects.filter(
             user=self.request.user).values('group').distinct())
+        for data in group_info:
+            user_id = Member.objects.get(role_type='owner', group_id=data.id)
+            data.owner = user_id.user.phone
+            
         return group_info
 
     @action(detail=True, methods=['GET'])

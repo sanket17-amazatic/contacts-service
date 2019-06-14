@@ -164,10 +164,11 @@ class GroupSerializer(ContactCreationAndUpdationMixin, serializers.ModelSerializ
     """
     contacts = ContactSerializer(many=True)
     members = MemberSerializer(many=True, read_only=True)
+    owner = serializers.CharField(max_length=15, read_only=True)
 
     class Meta:
         model = Group
-        fields = ('id', 'name', 'description', 'contacts', 'members')
+        fields = ('id', 'name', 'description', 'contacts', 'members', 'owner')
 
     @transaction.atomic
     def create(self, validated_data):
