@@ -101,7 +101,9 @@ class UserViewSet(viewsets.ModelViewSet):
         number = request.data.get('phone')
         sms_service_url = f'/api/sendhttp.php?authkey=68904AqY6Ddphfu5cf5b375&mobiles={number[1:]}&message={otp_message}&sender=1SHIPCO&route=4&country=0'
         conn.request("POST", sms_service_url)
+        print(sms_service_url)
         res = conn.getresponse()
+        print(res.read().decode("utf-8"))
         if res.status == 200:
             return Response({'details':'SMS sent to entered mobile number'}, status=status.HTTP_200_OK)
         else:
