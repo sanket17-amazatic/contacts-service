@@ -99,7 +99,7 @@ class UserViewSet(viewsets.ModelViewSet):
         otp_message = otp_message.replace(' ','%20')
         conn = http.client.HTTPSConnection("control.msg91.com")
         number = request.data.get('phone')
-        sms_service_url = f'/api/sendhttp.php?authkey=68904AqY6Ddphfu5cf5b375&mobiles={number[1:]}&message={otp_message}&sender=1SHIPCO&route=4&country={number[1:3]}'
+        sms_service_url = f'/api/sendhttp.php?authkey=68904AqY6Ddphfu5cf5b375&mobiles={number[1:]}&message={otp_message}&sender=1SHIPCO&route=4&country=0'
         conn.request("POST", sms_service_url)
         res = conn.getresponse()
         if res.status == 200:
