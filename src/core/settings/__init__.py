@@ -51,7 +51,10 @@ MIDDLEWARE = [
     'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
+
+MIDDLEWARE = MIDDLEWARE + (['querycount.middleware.QueryCountMiddleware'] if DEBUG else [])
 
 ROOT_URLCONF = 'core.urls'
 

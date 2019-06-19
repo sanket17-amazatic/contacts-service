@@ -207,7 +207,6 @@ class MemberViewSet(viewsets.ModelViewSet):
         valid_numbers_set = set()
         for contact in request.data.get('contacts'):
                 valid_numbers_set.add(json.dumps(contact, sort_keys=True))
-        print(valid_numbers_set)
         valid_numbers_list = []
         for contact in valid_numbers_set:
             valid_numbers_list.append(json.loads(contact))

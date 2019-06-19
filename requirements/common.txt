@@ -12,4 +12,5 @@ pycodestyle==2.5.0
 PyGreSQL==5.0.6
 PyJWT==1.7.1
 pytz==2019.1
+requests==2.22.0
 sqlparse==0.3.0

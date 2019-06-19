@@ -1,7 +1,7 @@
 """
 View for contact user application user
 """
-import http.client
+import requests
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
@@ -94,20 +94,33 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'details': 'Phone number not registered'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         elif request.data.get('action') == 'Signup' and valid_user:
             return Response({'details': 'User already registered'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
         token = self.otp.generate_token()
         otp_message = f"Dear Customer, your OTP is {token} which is valid for 5 minutes"
         otp_message = otp_message.replace(' ','%20')
-        conn = http.client.HTTPSConnection("control.msg91.com")
+        
+        conn_url = "https://control.msg91.com/api/sendhttp.php"
         number = request.data.get('phone')
-        sms_service_url = f'/api/sendhttp.php?authkey=68904AqY6Ddphfu5cf5b375&mobiles={number[1:]}&message={otp_message}&sender=1SHIPCO&route=4&country=0'
-        conn.request("POST", sms_service_url)
-        print(sms_service_url)
-        res = conn.getresponse()
-        print(res.read().decode("utf-8"))
-        if res.status == 200:
+        #sms_service_url = f'/api/sendhttp.php?authkey=68904AqY6Ddphfu5cf5b375&mobiles={number[1:]}&message={otp_message}&sender=1SHIPCO&route=4&country=0'
+        querystring = {
+            "authkey":"68904AqY6Ddphfu5cf5b375",
+            "mobiles":number[1:],
+            "message":otp_message,
+            "sender":"1SHIPCO",
+            "route":"4",
+            "country":"0"
+            }
+
+        payload = ""
+        headers = {
+            'cache-control': "no-cache"
+        }
+
+        response = requests.request("POST", conn_url, data=payload, headers=headers, params=querystring)
+        if response.status_code == 200:
             return Response({'details':'SMS sent to entered mobile number'}, status=status.HTTP_200_OK)
         else:
-            return Response({'details': 'Failed to sent sms', 'error':res.read().decode("utf-8"), 'status_code': res.status}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'details': 'Failed to sent sms', 'error':response.text, 'status_code': response.status_code}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['POST'])
     def verify(self, request, **kwargs):
