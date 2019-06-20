@@ -2,6 +2,7 @@
 View for contact user application user
 """
 import requests
+import phonenumbers
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
@@ -95,12 +96,20 @@ class UserViewSet(viewsets.ModelViewSet):
         elif request.data.get('action') == 'Signup' and valid_user:
             return Response({'details': 'User already registered'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+        try:
+            parse_number = phonenumbers.parse(request.data.get('phone'), None)
+        except Exception:
+            return Response({'details': 'Invalid Phonenumber'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        if phonenumbers.is_valid_number(parse_number):
+            number = request.data.get('phone')
+        else:
+            return Response({'details': 'Invalid Phonenumber entered'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
         token = self.otp.generate_token()
         otp_message = f"Dear Customer, your OTP is {token} which is valid for 5 minutes"
-        otp_message = otp_message.replace(' ','%20')
-        
+        otp_message = otp_message.replace(' ','%20')        
         conn_url = "https://control.msg91.com/api/sendhttp.php"
-        number = request.data.get('phone')
+       
         #sms_service_url = f'/api/sendhttp.php?authkey=68904AqY6Ddphfu5cf5b375&mobiles={number[1:]}&message={otp_message}&sender=1SHIPCO&route=4&country=0'
         querystring = {
             "authkey":"68904AqY6Ddphfu5cf5b375",
