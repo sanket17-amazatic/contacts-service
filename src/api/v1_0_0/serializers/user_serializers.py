@@ -1,6 +1,7 @@
 """
 Serializer for Conntact app user accounts
 """
+import phonenumbers
 from rest_framework import serializers
 from user.models import (User, BlackListedToken)
 
@@ -23,6 +24,12 @@ class UserSerializer(serializers.ModelSerializer):
             
             if original_password != confirm_password:
                 raise serializers.ValidationError('Entered password did not matched')
+            try:
+                parse_number = phonenumbers.parse(data.get('phone'), None)
+            except Exception:
+                raise serializers.ValidationError('Entered Phonenumber is invalid')
+            if not phonenumbers.is_valid_number(parse_number):
+                raise serializers.ValidationError('Entered Phonenumber is invalid')
         return data
     
     def create(self, validated_data):

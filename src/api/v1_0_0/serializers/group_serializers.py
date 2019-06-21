@@ -1,6 +1,7 @@
 """
 Serializer for Group and Group Member
 """
+import phonenumbers
 from django.db import transaction
 from django.db.models import (Q,)
 from rest_framework import serializers
@@ -17,6 +18,18 @@ class ContactNumberSerializer(serializers.ModelSerializer):
         fields = ('id', 'phone', 'deleted_at')
         extra_kwargs = {'id': {'read_only': False, 'required': False}}
 
+    def validate(self, data):
+        """
+        Validation method for valid phonenumber
+        """
+        try:
+            parse_number = phonenumbers.parse(data.get('phone'), None)
+        except Exception:
+            raise serializers.ValidationError('Entered Phonenumber is invalid')
+        if not phonenumbers.is_valid_number(parse_number):
+            raise serializers.ValidationError('Entered Phonenumber is invalid')
+        return data
+        
 class ContactEmailSerializer(serializers.ModelSerializer):
     """
     Serializer class for Contact Member's email
