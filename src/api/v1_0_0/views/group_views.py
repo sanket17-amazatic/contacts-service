@@ -125,12 +125,11 @@ class GroupViewSet(viewsets.ModelViewSet):
             if not phonenumbers.is_valid_number(parse_number):
                 return Response({'details': 'Invalid Phonenumber entered'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-        # new_contact_data = ContactCreationAndUpdationMixin().create(request.data)
-        # group = self.get_object()
-        # group.contacts.add(new_contact_data)
-        # serializer_data = ContactSerializer(new_contact_data)       
-        # return Response(serializer_data.data)
-        return Response("Done")
+        new_contact_data = ContactCreationAndUpdationMixin().create(request.data)
+        group = self.get_object()
+        group.contacts.add(new_contact_data)
+        serializer_data = ContactSerializer(new_contact_data)       
+        return Response(serializer_data.data)
     
     @action(detail=True, methods=['POST'], url_path='add-member-bulk', url_name='add_member_bulk')
     def add_member_bulk(self, request, **kwargs):
