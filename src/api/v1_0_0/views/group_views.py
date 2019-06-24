@@ -224,6 +224,10 @@ class MemberViewSet(viewsets.ModelViewSet):
             valid_numbers_list.append(json.loads(contact))
         for contact_data in valid_numbers_list:
             user_name = User.objects.filter(phone=contact_data.get('phone')).first()
-            if user_name is not None:                
-                valid_numbers.append({"phone": contact_data.get('phone'), "is_member": Member.objects.filter(group=request.data.get('group_id'), user__phone=contact_data.get('phone')).exists(), "name": contact_data.get('name')})     
+            if user_name is not None:
+                is_member = Member.objects.filter(group=request.data.get('group_id'), user__phone=contact_data.get('phone')).values('role_type').first()
+                if is_member is not None:
+                    valid_numbers.append({"phone": contact_data.get('phone'), "is_member": True, "name": contact_data.get('name'),"role_type": is_member['role_type']})      
+                else:
+                    valid_numbers.append({"phone": contact_data.get('phone'), "is_member": False, "name": contact_data.get('name'),"role_type": None}) 
         return Response(valid_numbers)
