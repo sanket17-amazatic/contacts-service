@@ -3,7 +3,6 @@ View for contact user application user
 """
 import requests
 import phonenumbers
-from sendotp import sendotp
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
