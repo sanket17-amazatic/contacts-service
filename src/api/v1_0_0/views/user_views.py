@@ -3,6 +3,7 @@ View for contact user application user
 """
 import requests
 import phonenumbers
+from sendotp import sendotp
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
@@ -16,6 +17,7 @@ from rest_framework_jwt.settings import api_settings
 from user.models import (User, BlackListedToken)
 from utils.jwt_utils import (jwt_response_payload_handler, jwt_payload_handler)
 from utils.otp_utils import TOTPVerification
+from utils.send_sms_utils import Message
 from ..serializers.user_serializers import (
     UserSerializer, BlackListedTokenSerializer)
 from ..permissions.token_permissions import IsBlackListedToken
@@ -107,25 +109,34 @@ class UserViewSet(viewsets.ModelViewSet):
 
         token = self.otp.generate_token()
         otp_message = f"Dear Customer, your OTP is {token} which is valid for 5 minutes"
-        otp_message = otp_message.replace(' ','%20')        
-        conn_url = "https://control.msg91.com/api/sendhttp.php"
-       
-        #sms_service_url = f'/api/sendhttp.php?authkey=68904AqY6Ddphfu5cf5b375&mobiles={number[1:]}&message={otp_message}&sender=1SHIPCO&route=4&country=0'
-        querystring = {
-            "authkey":"68904AqY6Ddphfu5cf5b375",
-            "mobiles":number[1:],
-            "message":otp_message,
-            "sender":"1SHIPCO",
-            "route":"4",
-            "country":"0"
-            }
+        # otp_message = otp_message.replace(' ','%20') 
 
-        payload = ""
-        headers = {
-            'cache-control': "no-cache"
+        send_values = {
+            'mobiles': number[1:],
+            'message': otp_message
         }
 
-        response = requests.request("POST", conn_url, data=payload, headers=headers, params=querystring)
+        send_sms = Message('68904AqY6Ddphfu5cf5b375')
+        response = send_sms.send(send_values)
+
+        # conn_url = "https://control.msg91.com/api/sendhttp.php"
+       
+        #sms_service_url = f'/api/sendhttp.php?authkey=68904AqY6Ddphfu5cf5b375&mobiles={number[1:]}&message={otp_message}&sender=1SHIPCO&route=4&country=0'
+        # querystring = {
+        #     "authkey":"68904AqY6Ddphfu5cf5b375",
+        #     "mobiles":number[1:],
+        #     "message":otp_message,
+        #     "sender":"1SHARE",
+        #     "route":"4",
+        #     "country":"0"
+        #     }
+
+        # payload = ""
+        # headers = {
+        #     'cache-control': "no-cache"
+        # }
+
+        # response = requests.request("POST", conn_url, data=payload, headers=headers, params=querystring)
         if response.status_code == 200:
             return Response({'details':'SMS sent to entered mobile number'}, status=status.HTTP_200_OK)
         else:
