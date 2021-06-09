@@ -1,6 +1,6 @@
 autopep8==1.4.4
 Babel==2.6.0
-Django==2.2
+Django==2.2.22
 django-otp==0.6.0
 django-phonenumber-field==2.3.1
 djangorestframework==3.9.3
